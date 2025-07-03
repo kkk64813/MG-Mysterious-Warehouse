@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Hotel Invoice Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+        
+        .form-container {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        
+        .preview-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .invoice-preview {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            padding: 20mm;
+            position: relative;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .invoice-header h2 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .hotel-info {
+            margin-bottom: 5px;
+            color: #7f8c8d;
+        }
+        
+        .guest-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .guest-details {
+            width: 60%;
+        }
+        
+        .invoice-details {
+            width: 35%;
+        }
+        
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        .invoice-table th, .invoice-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .invoice-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .total-row {
+            font-weight: bold;
+            background-color: #f1f8ff;
+        }
+        
+        .signature-area {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .footer-note {
+            margin-top: 20px;
+            font-style: italic;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .hotel-footer {
+            margin-top: auto;
+            width: 100%;
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .info-text {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .weekend-rate-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .rate-percentage {
+            background: #e3f2fd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        
+        .tax-summary {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 1px solid #eee;
+        }
+        
+        .tax-summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .tax-summary-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .tax-summary-label {
+            font-weight: 600;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .preview-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .page-number {
+            position: absolute;
+            bottom: 10mm;
+            right: 20mm;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .page-container {
+            position: relative;
+        }
+        
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .invoice-preview {
+                width: 100%;
+                min-height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Indian Hotel Invoice Generator</h1>
+        <p class="description">Fill in the form to generate a professional hotel invoice. Supports PDF and PNG export with authentic Indian hotel details.</p>
+    </div>
+    
+    <div class="container">
+        <div class="form-container">
+            <div class="section">
+                <div class="section-title">
+                    <h3>Hotel Information</h3>
+                    <button id="randomHotelBtn" class="btn-secondary">Random</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hotelName">Hotel Name</label>
+                    <input type="text" id="hotelName" value="Renaissance Ahmedabad Hotel">
+                </div>
+                
+                <div class="form-group">
+                    <label for="hotelAddress">Hotel Address</label>
+                    <textarea id="hotelAddress" rows="2">Behind Ganesh, Meridian Complex, Sola Road S G Highway Ahmedabad - 380060, India</textarea>
+                    <div class="btn-group">
+                        <button id="randomAddressBtn" class="btn-secondary">Random Address</button>
+                        <button id="hideAddressBtn" class="btn-secondary">Hide Address</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hotelPhone">Hotel Phone</label>
+                    <input type="text" id="hotelPhone" value="+91 79 4000 5000">
+                    <div class="btn-group">
+                        <button id="randomPhoneBtn" class="btn-secondary">Random Phone</button>
+                        <button id="hidePhoneBtn" class="btn-secondary">Hide Phone</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hotelCity">City</label>
+                    <select id="hotelCity">
+                        <option value="Ahmedabad" selected>Ahmedabad</option>
+                        <option value="Pune">Pune</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Gurgaon">Gurgaon</option>
+                        <option value="New Delhi">New Delhi</option>
+                        <option value="other">Other City</option>
+                    </select>
+                    <div id="otherCityContainer" style="display: none; margin-top: 10px;">
+                        <input type="text" id="otherCity" placeholder="Enter city name">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="taxId">Hotel Tax ID</label>
+                    <div class="btn-group">
+                        <input type="text" id="taxId" value="24AACC06346C222">
+                        <button id="randomTaxBtn" class="btn-secondary">Random</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <h3>Guest Information</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="guestName">Guest Name</label>
+                    <input type="text" id="guestName" value="Yu Tang Ni">
+                </div>
+                
+                <div class="form-group">
+                    <label for="guestAddress">Guest Address</label>
+                    <textarea id="guestAddress" rows="3">13f.-1 No. 97 Qihe 1st St. Zhongli Taoyuan Taoyuan 320045 China</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="roomNumber">Room Number</label>
+                    <div class="btn-group">
+                        <input type="text" id="roomNumber" value="1719">
+                        <button id="randomRoomBtn" class="btn-secondary">Random</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <h3>Stay Information</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="arrivalDate">Arrival Date</label>
+                    <input type="date" id="arrivalDate" value="2025-01-10">
+                </div>
+                
+                <div class="form-group">
+                    <label for="nights">Nights</label>
+                    <input type="number" id="nights" min="1" value="4">
+                </div>
+                
+                <div class="form-group">
+                    <label for="departureDate">Departure Date</label>
+                    <input type="date" id="departureDate" value="2025-01-14" readonly>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <h3>Loyalty & Billing</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loyaltyNumber">Loyalty Number</label>
+                    <div class="btn-group">
+                        <input type="text" id="loyaltyNumber" value="XXXXX5676">
+                        <button id="randomLoyaltyBtn" class="btn-secondary">Random</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="invoiceNumber">Invoice Number</label>
+                    <div class="btn-group">
+                        <input type="text" id="invoiceNumber" value="119194">
+                        <button id="randomInvoiceBtn" class="btn-secondary">Random</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cashierName">Cashier Name</label>
+                    <div class="btn-group">
+                        <input type="text" id="cashierName" value="NSHAR155">
+                        <button id="randomCashierBtn" class="btn-secondary">Random</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <h3>Rate Settings</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="weekdayRate">Weekday Rate (₹)</label>
+                    <input type="number" id="weekdayRate" min="0" value="5700">
+                </div>
+                
+                <div class="form-group">
+                    <label for="weekendRate">Weekend Rate (₹)</label>
+                    <input type="number" id="weekendRate" min="0" value="6840" readonly>
+                    <div class="weekend-rate-info">
+                        <span>Weekend rate multiplier:</span>
+                        <span id="weekendRatePercent" class="rate-percentage">120%</span>
+                        <button id="randomRateBtn" class="btn-secondary">Randomize (110-130%)</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="taxRate">Tax Rate (%)</label>
+                    <input type="number" id="taxRate" min="0" max="100" step="0.1" value="6">
+                </div>
+                
+                <div class="form-group">
+                    <label for="otherTax">Other Charges (₹)</label>
+                    <input type="number" id="otherTax" min="0" value="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="prepayment">Prepayment (₹)</label>
+                    <input type="number" id="prepayment" min="0" value="26600">
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="generateBtn" class="btn-success">Generate Invoice</button>
+                <button id="resetBtn" class="btn-danger">Reset Form</button>
+            </div>
+        </div>
+        
+        <div class="preview-container">
+            <div class="preview-controls">
+                <button id="exportPdfBtn" class="btn-success">Download PDF</button>
+                <button id="exportPngBtn" class="btn-success">Download PNG</button>
+            </div>
+            
+            <div id="invoicePreview" class="invoice-preview">
+                <div class="invoice-header">
+                    <div class="logo">HOTEL INVOICE</div>
+                    <h2 id="previewHotelName">Renaissance Ahmedabad Hotel</h2>
+                    <p id="previewHotelAddress" class="hotel-info">Behind Ganesh, Meridian Complex, Sola Road S G Highway Ahmedabad - 380060, India</p>
+                    <p id="previewHotelPhone" class="hotel-info">Phone: +91 79 4000 5000</p>
+                    <h3>TAX INVOICE</h3>
+                </div>
+                
+                <div class="guest-info">
+                    <div class="guest-details">
+                        <p><strong>Guest Name:</strong> <span id="previewGuestName">Yu Tang Ni</span></p>
+                        <p><strong>Guest Address:</strong> <span id="previewGuestAddress">13f.-1 No. 97 Qihe 1st St. Zhongli Taoyuan Taoyuan 320045 China</span></p>
+                    </div>
+                    
+                    <div class="invoice-details">
+                        <p><strong>Room:</strong> <span id="previewRoom">1719</span></p>
+                        <p><strong>Arrival:</strong> <span id="previewArrival">10-01-25</span></p>
+                        <p><strong>Departure:</strong> <span id="previewDeparture">14-01-25</span></p>
+                        <p><strong>Loyalty No:</strong> <span id="previewLoyalty">XXXXX5676</span></p>
+                        <p><strong>Cashier:</strong> <span id="previewCashier">NSHAR155</span></p>
+                        <p><strong>Invoice No:</strong> <span id="previewInvoiceNo">119194</span></p>
+                    </div>
+                </div>
+                
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Charges (₹)</th>
+                            <th>Credits (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceItems">
+                        <tr>
+                            <td>10-01-25</td>
+                            <td>Accomodation Charges</td>
+                            <td>6,175.00</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>10-01-25</td>
+                            <td>CGST on Room 6%</td>
+                            <td>370.50</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>10-01-25</td>
+                            <td>SGST on Room 6%</td>
+                            <td>370.50</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>10-01-25</td>
+                            <td>Rupay Card Manual</td>
+                            <td></td>
+                            <td>26,600.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="tax-summary" id="taxSummary">
+                    <div class="tax-summary-row">
+                        <span class="tax-summary-label">Total Room Charges:</span>
+                        <span id="previewTotalRoom">₹ 23,750.00</span>
+                    </div>
+                    <div class="tax-summary-row">
+                        <span class="tax-summary-label">Total CGST:</span>
+                        <span id="previewTotalCGST">₹ 1,425.00</span>
+                    </div>
+                    <div class="tax-summary-row">
+                        <span class="tax-summary-label">Total SGST:</span>
+                        <span id="previewTotalSGST">₹ 1,425.00</span>
+                    </div>
+                    <div class="tax-summary-row">
+                        <span class="tax-summary-label">Other Charges:</span>
+                        <span id="previewOtherTax">₹ 0.00</span>
+                    </div>
+                    <div class="tax-summary-row">
+                        <span class="tax-summary-label">Total Charges:</span>
+                        <span id="previewTotalCharges">₹ 26,600.00</span>
+                    </div>
+                </div>
+                
+                <table class="invoice-table">
+                    <tbody>
+                        <tr class="total-row">
+                            <td colspan="2">Total</td>
+                            <td id="previewTotalDebit">26,600.00</td>
+                            <td id="previewTotalCredit">26,600.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="signature-area">
+                    <p><strong>Balance: ₹ <span id="previewBalance">0.00</span></strong></p>
+                    <p style="margin-top: 40px;">Guest Signature: _________________________</p>
+                    <p class="footer-note">
+                        This statement is the only receipt. I agree that I am personally liable for the above-mentioned payment and if the person, company or association indicated by me as being responsible for the payment, I understand that my liability shall be joint with such person, company or association if the amount is not received within 30 days.
+                    </p>
+                </div>
+                
+                <div class="hotel-footer">
+                    <p id="previewTaxId">GST No.: 24AACC06346C222</p>
+                    <p>Renaissance Ahmedabad Hotel (A Unit of Caspta Hotels Private Limited)</p>
+                </div>
+                
+                <div class="page-number" id="pageNumber">Page 1 of 1</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Indian hotel data
+            const hotelNames = [
+                "Taj Mahal Palace", 
+                "The Oberoi Amarvilas", 
+                "ITC Grand Chola", 
+                "The Leela Palace", 
+                "Rambagh Palace",
+                "Taj Lake Palace",
+                "Wildflower Hall",
+                "The Imperial New Delhi",
+                "Umaid Bhawan Palace",
+                "The St. Regis Mumbai"
+            ];
+            
+            const addresses = {
+                "Pune": [
+                    "Koregaon Park, Pune 411001, Maharashtra",
+                    "Senapati Bapat Road, Pune 411053, Maharashtra",
+                    "Viman Nagar, Pune 411014, Maharashtra"
+                ],
+                "Mumbai": [
+                    "Apollo Bunder, Mumbai 400001, Maharashtra",
+                    "Nariman Point, Mumbai 400021, Maharashtra",
+                    "Bandra Kurla Complex, Mumbai 400051, Maharashtra"
+                ],
+                "Gurgaon": [
+                    "Sector 29, Gurgaon 122001, Haryana",
+                    "MG Road, Gurgaon 122002, Haryana",
+                    "Cyber City, Gurgaon 122008, Haryana"
+                ],
+                "New Delhi": [
+                    "Janpath, New Delhi 110001",
+                    "Sansad Marg, New Delhi 110001",
+                    "Connaught Place, New Delhi 110001"
+                ],
+                "Ahmedabad": [
+                    "Behind Ganesh, Meridian Complex, Sola Road S G Highway Ahmedabad 380060, Gujarat",
+                    "Near Gujarat High Court, S G Highway Ahmedabad 380060, Gujarat",
+                    "Opposite Karnavati Club, S G Highway Ahmedabad 380051, Gujarat"
+                ]
+            };
+            
+            const phonePrefixes = ["+91 11", "+91 22", "+91 33", "+91 44", "+91 79", "+91 80", "+91 124"];
+            
+            // DOM elements
+            const hotelName = document.getElementById('hotelName');
+            const hotelAddress = document.getElementById('hotelAddress');
+            const hotelPhone = document.getElementById('hotelPhone');
+            const hotelCity = document.getElementById('hotelCity');
+            const otherCityContainer = document.getElementById('otherCityContainer');
+            const otherCity = document.getElementById('otherCity');
+            const taxId = document.getElementById('taxId');
+            const guestName = document.getElementById('guestName');
+            const guestAddress = document.getElementById('guestAddress');
+            const roomNumber = document.getElementById('roomNumber');
+            const arrivalDate = document.getElementById('arrivalDate');
+            const nights = document.getElementById('nights');
+            const departureDate = document.getElementById('departureDate');
+            const loyaltyNumber = document.getElementById('loyaltyNumber');
+            const invoiceNumber = document.getElementById('invoiceNumber');
+            const cashierName = document.getElementById('cashierName');
+            const weekdayRate = document.getElementById('weekdayRate');
+            const weekendRate = document.getElementById('weekendRate');
+            const taxRate = document.getElementById('taxRate');
+            const otherTax = document.getElementById('otherTax');
+            const prepayment = document.getElementById('prepayment');
+            const weekendRatePercent = document.getElementById('weekendRatePercent');
+            const pageNumber = document.getElementById('pageNumber');
+            
+            // Preview elements
+            const previewHotelName = document.getElementById('previewHotelName');
+            const previewHotelAddress = document.getElementById('previewHotelAddress');
+            const previewHotelPhone = document.getElementById('previewHotelPhone');
+            const previewGuestName = document.getElementById('previewGuestName');
+            const previewGuestAddress = document.getElementById('previewGuestAddress');
+            const previewRoom = document.getElementById('previewRoom');
+            const previewArrival = document.getElementById('previewArrival');
+            const previewDeparture = document.getElementById('previewDeparture');
+            const previewLoyalty = document.getElementById('previewLoyalty');
+            const previewCashier = document.getElementById('previewCashier');
+            const previewInvoiceNo = document.getElementById('previewInvoiceNo');
+            const previewBalance = document.getElementById('previewBalance');
+            const previewTaxId = document.getElementById('previewTaxId');
+            const invoiceItems = document.getElementById('invoiceItems');
+            const previewTotalRoom = document.getElementById('previewTotalRoom');
+            const previewTotalCGST = document.getElementById('previewTotalCGST');
+            const previewTotalSGST = document.getElementById('previewTotalSGST');
+            const previewOtherTax = document.getElementById('previewOtherTax');
+            const previewTotalCharges = document.getElementById('previewTotalCharges');
+            const previewTotalDebit = document.getElementById('previewTotalDebit');
+            const previewTotalCredit = document.getElementById('previewTotalCredit');
+            
+            // Initialize
+            calculateDepartureDate();
+            updateWeekendRate();
+            
+            // City selection handling
+            hotelCity.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    otherCityContainer.style.display = 'block';
+                } else {
+                    otherCityContainer.style.display = 'none';
+                }
+            });
+            
+            // Date handling
+            arrivalDate.addEventListener('change', calculateDepartureDate);
+            nights.addEventListener('input', calculateDepartureDate);
+            
+            // Rate handling
+            weekdayRate.addEventListener('input', updateWeekendRate);
+            
+            // Random hotel button
+            document.getElementById('randomHotelBtn').addEventListener('click', function() {
+                const randomName = hotelNames[Math.floor(Math.random() * hotelNames.length)];
+                hotelName.value = randomName;
+                updatePreview();
+            });
+            
+            // Random address button
+            document.getElementById('randomAddressBtn').addEventListener('click', function() {
+                const city = hotelCity.value === 'other' ? otherCity.value : hotelCity.value;
+                const cityAddresses = addresses[city] || [
+                    `${Math.floor(Math.random() * 100) + 1} Main Street, ${city}`,
+                    `${Math.floor(Math.random() * 50) + 1} Park Road, ${city}`,
+                    `Sector ${Math.floor(Math.random() * 50) + 1}, ${city}`
+                ];
+                
+                const randomAddress = cityAddresses[Math.floor(Math.random() * cityAddresses.length)];
+                hotelAddress.value = randomAddress;
+                updatePreview();
+            });
+            
+            // Random phone button
+            document.getElementById('randomPhoneBtn').addEventListener('click', function() {
+                const prefix = phonePrefixes[Math.floor(Math.random() * phonePrefixes.length)];
+                const num = Math.floor(1000000 + Math.random() * 9000000);
+                hotelPhone.value = `${prefix} ${num.toString().substring(0, 4)} ${num.toString().substring(4)}`;
+                updatePreview();
+            });
+            
+            // Hide address button
+            document.getElementById('hideAddressBtn').addEventListener('click', function() {
+                previewHotelAddress.style.display = previewHotelAddress.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            // Hide phone button
+            document.getElementById('hidePhoneBtn').addEventListener('click', function() {
+                previewHotelPhone.style.display = previewHotelPhone.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            // Random tax ID button
+            document.getElementById('randomTaxBtn').addEventListener('click', function() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let result = '';
+                for (let i = 0; i < 15; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                taxId.value = result;
+                updatePreview();
+            });
+            
+            // Random room number button
+            document.getElementById('randomRoomBtn').addEventListener('click', function() {
+                roomNumber.value = Math.floor(1000 + Math.random() * 9000);
+                updatePreview();
+            });
+            
+            // Random loyalty number button
+            document.getElementById('randomLoyaltyBtn').addEventListener('click', function() {
+                const prefix = 'XXXXX';
+                const suffix = Math.floor(1000 + Math.random() * 9000);
+                loyaltyNumber.value = prefix + suffix;
+                updatePreview();
+            });
+            
+            // Random invoice number button
+            document.getElementById('randomInvoiceBtn').addEventListener('click', function() {
+                invoiceNumber.value = Math.floor(100000 + Math.random() * 900000);
+                updatePreview();
+            });
+            
+            // Random cashier button
+            document.getElementById('randomCashierBtn').addEventListener('click', function() {
+                const names = ['NSHAR155', 'RKUMAR78', 'PPATEL23', 'SMISHRA89', 'RJAIN45', 'VSINGH12', 'MRAO67'];
+                cashierName.value = names[Math.floor(Math.random() * names.length)];
+                updatePreview();
+            });
+            
+            // Random weekend rate button
+            document.getElementById('randomRateBtn').addEventListener('click', function() {
+                // Generate random percentage between 110 and 130
+                const percentage = Math.floor(Math.random() * 21) + 110;
+                const weekday = parseFloat(weekdayRate.value);
+                
+                if (!isNaN(weekday)) {
+                    weekendRate.value = Math.round(weekday * (percentage / 100));
+                    weekendRatePercent.textContent = `${percentage}%`;
+                }
+            });
+            
+            // Generate invoice button
+            document.getElementById('generateBtn').addEventListener('click', generateInvoice);
+            
+            // Reset form button
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to reset all form data?')) {
+                    hotelName.value = 'Renaissance Ahmedabad Hotel';
+                    hotelAddress.value = 'Behind Ganesh, Meridian Complex, Sola Road S G Highway Ahmedabad - 380060, India';
+                    hotelPhone.value = '+91 79 4000 5000';
+                    hotelCity.value = 'Ahmedabad';
+                    otherCityContainer.style.display = 'none';
+                    taxId.value = '24AACC06346C222';
+                    guestName.value = 'Yu Tang Ni';
+                    guestAddress.value = '13f.-1 No. 97 Qihe 1st St. Zhongli Taoyuan Taoyuan 320045 China';
+                    roomNumber.value = '1719';
+                    arrivalDate.value = '2025-01-10';
+                    nights.value = '4';
+                    calculateDepartureDate();
+                    loyaltyNumber.value = 'XXXXX5676';
+                    invoiceNumber.value = '119194';
+                    cashierName.value = 'NSHAR155';
+                    weekdayRate.value = '5700';
+                    updateWeekendRate();
+                    taxRate.value = '6';
+                    otherTax.value = '0';
+                    prepayment.value = '26600';
+                    
+                    updatePreview();
+                    generateInvoice();
+                }
+            });
+            
+            // Export PDF button
+            document.getElementById('exportPdfBtn').addEventListener('click', function() {
+                generateInvoice();
+                
+                setTimeout(() => {
+                    const element = document.getElementById('invoicePreview');
+                    
+                    // Create a clone of the element to avoid modifying the original
+                    const clone = element.cloneNode(true);
+                    clone.style.width = '210mm';
+                    clone.style.margin = '0';
+                    clone.style.boxShadow = 'none';
+                    
+                    // Add page numbers to the clone
+                    const pageNum = clone.querySelector('#pageNumber');
+                    if (pageNum) pageNum.textContent = "Page 1 of 1";
+                    
+                    document.body.appendChild(clone);
+                    
+                    // Set options for PDF generation
+                    const opt = {
+                        margin: 10,
+                        filename: 'hotel_invoice.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { 
+                            scale: 2,
+                            backgroundColor: '#FFFFFF',
+                            logging: false,
+                            useCORS: true
+                        },
+                        jsPDF: { 
+                            unit: 'mm', 
+                            format: 'a4', 
+                            orientation: 'portrait',
+                            putOnlyUsedFonts: true
+                        }
+                    };
+                    
+                    // Generate PDF
+                    html2pdf()
+                        .set(opt)
+                        .from(clone)
+                        .save()
+                        .then(() => {
+                            // Remove the clone after PDF generation
+                            document.body.removeChild(clone);
+                        });
+                }, 500);
+            });
+            
+            // Export PNG button
+            document.getElementById('exportPngBtn').addEventListener('click', function() {
+                generateInvoice();
+                
+                setTimeout(() => {
+                    const element = document.getElementById('invoicePreview');
+                    
+                    // Create a clone to remove any box-shadow that might cause issues
+                    const clone = element.cloneNode(true);
+                    clone.style.boxShadow = 'none';
+                    clone.style.position = 'absolute';
+                    clone.style.left = '-9999px';
+                    document.body.appendChild(clone);
+                    
+                    html2canvas(clone, {
+                        scale: 2,
+                        backgroundColor: '#FFFFFF',
+                        logging: false,
+                        useCORS: true
+                    }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = 'hotel_invoice.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        document.body.removeChild(clone);
+                    });
+                }, 500);
+            });
+            
+            // Calculate departure date
+            function calculateDepartureDate() {
+                if (!arrivalDate.value || !nights.value) return;
+                
+                const arrival = new Date(arrivalDate.value);
+                const nightsCount = parseInt(nights.value);
+                
+                if (isNaN(nightsCount) || nightsCount < 1) return;
+                
+                const departure = new Date(arrival);
+                departure.setDate(arrival.getDate() + nightsCount);
+                
+                // Format to YYYY-MM-DD
+                const formattedDate = departure.toISOString().split('T')[0];
+                departureDate.value = formattedDate;
+            }
+            
+            // Update weekend rate
+            function updateWeekendRate() {
+                if (!weekdayRate.value) return;
+                const weekday = parseFloat(weekdayRate.value);
+                if (isNaN(weekday)) return;
+                
+                // Calculate weekend rate based on current multiplier
+                const percentage = parseInt(weekendRatePercent.textContent);
+                const multiplier = isNaN(percentage) ? 1.2 : (percentage / 100);
+                weekendRate.value = Math.round(weekday * multiplier);
+            }
+            
+            // Update preview
+            function updatePreview() {
+                previewHotelName.textContent = hotelName.value;
+                previewHotelAddress.textContent = hotelAddress.value;
+                previewHotelPhone.textContent = `Phone: ${hotelPhone.value}`;
+                previewGuestName.textContent = guestName.value;
+                previewGuestAddress.textContent = guestAddress.value;
+                previewRoom.textContent = roomNumber.value;
+                previewLoyalty.textContent = loyaltyNumber.value;
+                previewCashier.textContent = cashierName.value;
+                previewInvoiceNo.textContent = invoiceNumber.value;
+                previewTaxId.textContent = `GST No.: ${taxId.value}`;
+                
+                // Format dates
+                if (arrivalDate.value) {
+                    const arrival = new Date(arrivalDate.value);
+                    previewArrival.textContent = formatDate(arrival);
+                }
+                
+                if (departureDate.value) {
+                    const departure = new Date(departureDate.value);
+                    previewDeparture.textContent = formatDate(departure);
+                }
+            }
+            
+            // Format date (DD-MM-YY)
+            function formatDate(date) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = String(date.getFullYear()).substr(-2);
+                return `${day}-${month}-${year}`;
+            }
+            
+            // Generate invoice details
+            function generateInvoice() {
+                updatePreview();
+                
+                const weekday = parseFloat(weekdayRate.value) || 0;
+                const weekend = parseFloat(weekendRate.value) || 0;
+                const tax = parseFloat(taxRate.value) || 0;
+                const other = parseFloat(otherTax.value) || 0;
+                const prepay = parseFloat(prepayment.value) || 0;
+                
+                if (!arrivalDate.value || !nights.value) return;
+                
+                const arrival = new Date(arrivalDate.value);
+                const nightsCount = parseInt(nights.value);
+                
+                if (isNaN(nightsCount) || nightsCount < 1) return;
+                
+                // Clear existing items
+                invoiceItems.innerHTML = '';
+                
+                let totalRoomCharges = 0;
+                let totalCGST = 0;
+                let totalSGST = 0;
+                
+                // Generate daily charges
+                for (let i = 0; i < nightsCount; i++) {
+                    const currentDate = new Date(arrival);
+                    currentDate.setDate(arrival.getDate() + i);
+                    
+                    // Check if weekend (Saturday or Sunday)
+                    const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+                    const roomCharge = isWeekend ? weekend : weekday;
+                    
+                    // Calculate tax
+                    const taxAmount = roomCharge * (tax / 100);
+                    const cgst = taxAmount / 2;
+                    const sgst = taxAmount / 2;
+                    
+                    totalRoomCharges += roomCharge;
+                    totalCGST += cgst;
+                    totalSGST += sgst;
+                    
+                    // Add room charge row
+                    addInvoiceRow(formatDate(currentDate), 'Accomodation Charges', roomCharge.toFixed(2));
+                    
+                    // Add tax rows
+                    if (tax > 0) {
+                        addInvoiceRow(formatDate(currentDate), `CGST on Room ${tax}%`, cgst.toFixed(2));
+                        addInvoiceRow(formatDate(currentDate), `SGST on Room ${tax}%`, sgst.toFixed(2));
+                    }
+                }
+                
+                // Add prepayment row
+                if (prepay > 0) {
+                    addInvoiceRow(formatDate(arrival), 'Advance Payment', '', prepay.toFixed(2));
+                }
+                
+                // Update tax summary
+                const totalCharges = totalRoomCharges + totalCGST + totalSGST + other;
+                const balance = totalCharges - prepay;
+                
+                previewTotalRoom.textContent = `₹ ${totalRoomCharges.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+                previewTotalCGST.textContent = `₹ ${totalCGST.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+                previewTotalSGST.textContent = `₹ ${totalSGST.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+                previewOtherTax.textContent = `₹ ${other.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+                previewTotalCharges.textContent = `₹ ${totalCharges.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+                previewTotalDebit.textContent = totalCharges.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                previewTotalCredit.textContent = prepay.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                previewBalance.textContent = balance.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                
+                // Update page number
+                pageNumber.textContent = "Page 1 of 1";
+            }
+            
+            // Add invoice row
+            function addInvoiceRow(date, description, charge = '', credit = '') {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td>${description}</td>
+                    <td>${charge ? parseFloat(charge).toLocaleString('en-IN', {minimumFractionDigits: 2}) : ''}</td>
+                    <td>${credit ? parseFloat(credit).toLocaleString('en-IN', {minimumFractionDigits: 2}) : ''}</td>
+                `;
+                invoiceItems.appendChild(row);
+            }
+            
+            // Initial invoice generation
+            generateInvoice();
+        });
+    </script>
+</body>
+</html>

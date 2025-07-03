@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.1/docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-color: #333;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+        
+        .form-section {
+            flex: 1;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            max-width: 500px;
+        }
+        
+        .preview-section {
+            flex: 2;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        
+        h2 {
+            margin: 20px 0 15px;
+            color: #2c3e50;
+            font-size: 22px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .invoice-container {
+            flex: 1;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 30px;
+            min-height: 800px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .invoice-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .company-info p, .client-info p {
+            margin: 5px 0;
+        }
+        
+        .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 0;
+            background: var(--secondary-color);
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 30px;
+        }
+        
+        .invoice-table th {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: left;
+            padding: 12px 15px;
+        }
+        
+        .invoice-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .invoice-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .invoice-summary {
+            margin-top: 30px;
+            text-align: right;
+        }
+        
+        .total-row {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid var(--primary-color);
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .download-btn {
+            padding: 12px 25px;
+            font-size: 16px;
+            min-width: 150px;
+        }
+        
+        .style-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .style-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .style-box.active {
+            border-color: #333;
+        }
+        
+        .iframe-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .iframe-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .iframe-modal h3 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .download-link {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        .close-modal {
+            float: right;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .form-section {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Professional Invoice Generator</h1>
+    
+    <div class="container">
+        <div class="form-section">
+            <h2>Invoice Details</h2>
+            
+            <div class="form-group">
+                <label for="style">Invoice Style</label>
+                <select id="style" class="form-control">
+                    <option value="style1">Classic Blue</option>
+                    <option value="style2">Modern Green</option>
+                    <option value="style3">Elegant Purple</option>
+                    <option value="style4">Corporate Gray</option>
+                    <option value="style5">Minimalist</option>
+                    <option value="style6">Bold Red</option>
+                    <option value="style7">Ocean Teal</option>
+                    <option value="style8">Sunset Orange</option>
+                    <option value="style9">Forest Green</option>
+                    <option value="style10">Royal Gold</option>
+                    <option value="style11">Dark Mode</option>
+                    <option value="style12">Pastel Pink</option>
+                    <option value="style13">Tech Blue</option>
+                    <option value="style14">Vintage Brown</option>
+                    <option value="style15">Lavender</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="companyName">Company Name</label>
+                <div class="form-actions">
+                    <input type="text" id="companyName" placeholder="e.g. Tech Solutions Ltd.">
+                    <button class="btn btn-secondary" onclick="randomCompany()">Random</button>
+                    <button class="btn btn-secondary" onclick="toggleVisibility('companyName')">Hide</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="companyWebsite">Company Website</label>
+                <div class="form-actions">
+                    <input type="text" id="companyWebsite" placeholder="e.g. www.example.com">
+                    <button class="btn btn-secondary" onclick="randomWebsite()">Random</button>
+                    <button class="btn btn-secondary" onclick="toggleVisibility('companyWebsite')">Hide</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="companyEmail">Company Email</label>
+                <div class="form-actions">
+                    <input type="email" id="companyEmail" placeholder="e.g. billing@example.com">
+                    <button class="btn btn-secondary" onclick="randomEmail()">Random</button>
+                    <button class="btn btn-secondary" onclick="toggleVisibility('companyEmail')">Hide</button>
+                </div>
+            </div>
+            
+            <h2>Client Information</h2>
+            
+            <div class="form-group">
+                <label for="clientName">Client Name</label>
+                <div class="form-actions">
+                    <input type="text" id="clientName" placeholder="e.g. John Smith">
+                    <button class="btn btn-secondary" onclick="randomClient()">Random</button>
+                    <button class="btn btn-secondary" onclick="toggleVisibility('clientName')">Hide</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="clientID">Client ID</label>
+                <div class="form-actions">
+                    <input type="text" id="clientID" placeholder="e.g. CL-12345">
+                    <button class="btn btn-secondary" onclick="randomID()">Random</button>
+                    <button class="btn btn-secondary" onclick="toggleVisibility('clientID')">Hide</button>
+                </div>
+            </div>
+            
+            <h2>Service Details</h2>
+            
+            <div class="form-group">
+                <label for="serviceDescription">Service Description</label>
+                <select id="serviceDescription">
+                    <option value="VPN Basic Plan - Monthly">VPN Basic Plan - Monthly</option>
+                    <option value="VPN Pro Plan - Annual">VPN Pro Plan - Annual</option>
+                    <option value="VPN Business Plan - Quarterly">VPN Business Plan - Quarterly</option>
+                    <option value="VPN Premium Plan - Monthly">VPN Premium Plan - Monthly</option>
+                    <option value="Dedicated IP Address">Dedicated IP Address</option>
+                    <option value="VPN Setup & Configuration">VPN Setup & Configuration</option>
+                    <option value="Custom">Custom Description</option>
+                </select>
+                <input type="text" id="customService" placeholder="Enter custom service" style="margin-top: 10px; display: none;">
+            </div>
+            
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <div class="form-actions">
+                    <input type="number" id="amount" placeholder="e.g. 99.99" min="0" step="0.01">
+                    <button class="btn btn-secondary" onclick="randomAmount()">Random</button>
+                    <button class="btn btn-secondary" onclick="toggleVisibility('amount')">Hide</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="currency">Currency</label>
+                <select id="currency">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="startDate">Service Start Date</label>
+                <input type="date" id="startDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="months">Service Duration (Months)</label>
+                <input type="number" id="months" min="1" max="36" value="12">
+            </div>
+            
+            <div class="form-group">
+                <label for="paymentMethod">Payment Method</label>
+                <select id="paymentMethod">
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Cryptocurrency">Cryptocurrency</option>
+                </select>
+                <div id="creditCardDetails" style="margin-top: 10px; display: none;">
+                    <label for="cardLast4">Credit Card Last 4 Digits</label>
+                    <input type="text" id="cardLast4" placeholder="e.g. 3357" maxlength="4">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="transactionID">Transaction ID</label>
+                <div class="form-actions">
+                    <input type="text" id="transactionID" placeholder="e.g. TXN-98765">
+                    <button class="btn btn-secondary" onclick="randomTxnID()">Random</button>
+                    <button class="btn btn-secondary" onclick="toggleVisibility('transactionID')">Hide</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="invoiceDate">Invoice Date</label>
+                <input type="date" id="invoiceDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="invoiceNumber">Invoice Number</label>
+                <div class="form-actions">
+                    <input type="text" id="invoiceNumber" placeholder="e.g. INV-2023-001">
+                    <button class="btn btn-secondary" onclick="randomInvoiceNumber()">Random</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h2>Invoice Preview</h2>
+            <div class="invoice-container" id="invoice">
+                <div class="invoice-header">
+                    <div>
+                        <div class="invoice-title">INVOICE</div>
+                        <div class="company-info">
+                            <p id="previewCompanyName">Tech Solutions Ltd.</p>
+                            <p id="previewCompanyWebsite">www.techsolutions.com</p>
+                            <p id="previewCompanyEmail">billing@techsolutions.com</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p><strong>Invoice #:</strong> <span id="previewInvoiceNumber">INV-2023-001</span></p>
+                        <p><strong>Date:</strong> <span id="previewInvoiceDate">2023-11-15</span></p>
+                    </div>
+                </div>
+                
+                <div class="invoice-details">
+                    <div class="client-info">
+                        <p><strong>Bill To:</strong></p>
+                        <p id="previewClientName">John Smith</p>
+                        <p>Client ID: <span id="previewClientID">CL-12345</span></p>
+                    </div>
+                    <div>
+                        <p><strong>Payment Method:</strong> <span id="previewPaymentMethod">Credit Card</span></p>
+                        <p id="previewCardDetails">Card ending in: 3357</p>
+                        <p><strong>Transaction ID:</strong> <span id="previewTxnID">TXN-98765</span></p>
+                    </div>
+                </div>
+                
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Period</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="previewService">VPN Pro Plan - Annual</td>
+                            <td id="previewPeriod">Nov 15, 2023 - Nov 15, 2024</td>
+                            <td id="previewAmount">$99.99</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="invoice-summary">
+                    <p>Subtotal: <span id="previewSubtotal">$99.99</span></p>
+                    <p>Tax (0%): <span id="previewTax">$0.00</span></p>
+                    <p class="total-row">Total: <span id="previewTotal">$99.99</span></p>
+                </div>
+                
+                <div class="invoice-footer" style="margin-top: 50px; text-align: center; color: #777;">
+                    <p>Thank you for your business!</p>
+                    <p>All payments should be made within 30 days of invoice date</p>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary download-btn" onclick="downloadPDF()">Download PDF</button>
+                <button class="btn btn-primary download-btn" onclick="downloadPNG()">Download PNG</button>
+                <button class="btn btn-primary download-btn" onclick="downloadWord()">Download Word</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="iframe-modal" id="iframeModal">
+        <div class="iframe-modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Download Your Invoice</h3>
+            <p>Copy the link below and open it in a new browser tab to download your invoice:</p>
+            <input type="text" class="download-link" id="downloadLink" readonly>
+            <p><small>Note: The download link will expire when you close this page.</small></p>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize date fields
+        document.getElementById('invoiceDate').valueAsDate = new Date();
+        document.getElementById('startDate').valueAsDate = new Date();
+        
+        // Generate initial random data
+        generateRandomData();
+        
+        // Update preview when inputs change
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+        
+        // Toggle credit card field
+        document.getElementById('paymentMethod').addEventListener('change', function() {
+            const ccDetails = document.getElementById('creditCardDetails');
+            ccDetails.style.display = this.value === 'Credit Card' ? 'block' : 'none';
+            updatePreview();
+        });
+        
+        // Toggle custom service field
+        document.getElementById('serviceDescription').addEventListener('change', function() {
+            const customService = document.getElementById('customService');
+            customService.style.display = this.value === 'Custom' ? 'block' : 'none';
+            updatePreview();
+        });
+        
+        // Style selector
+        document.getElementById('style').addEventListener('change', function() {
+            document.getElementById('invoice').className = 'invoice-container ' + this.value;
+        });
+        
+        // Initialize preview
+        updatePreview();
+        
+        // Generate random data for all fields
+        function generateRandomData() {
+            randomCompany();
+            randomWebsite();
+            randomEmail();
+            randomClient();
+            randomID();
+            randomAmount();
+            randomTxnID();
+            randomInvoiceNumber();
+        }
+        
+        // Random company name generator
+        function randomCompany() {
+            const companies = [
+                "Global VPN Solutions", "SecureNet Technologies", "CyberShield Inc.", 
+                "PrivacyGuard Systems", "NetProtect Ltd.", "FastConnect Networks", 
+                "DataSafe VPN", "Anonymize Corp", "Encrypted Connections", "SafeWeb Services"
+            ];
+            const suffixes = ["Ltd", "Inc", "Corp", "LLC", "Group", "Solutions"];
+            const company = companies[Math.floor(Math.random() * companies.length)];
+            const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+            document.getElementById('companyName').value = `${company} ${suffix}`;
+            updatePreview();
+        }
+        
+        // Random website generator
+        function randomWebsite() {
+            const domains = ["securevpn", "privacynow", "fastconnect", "cybershield", "netsafe", "anonymize", "dataprotect"];
+            const tlds = [".com", ".net", ".io", ".tech", ".cloud"];
+            const domain = domains[Math.floor(Math.random() * domains.length)];
+            const tld = tlds[Math.floor(Math.random() * tlds.length)];
+            document.getElementById('companyWebsite').value = `www.${domain}${tld}`;
+            updatePreview();
+        }
+        
+        // Random email generator
+        function randomEmail() {
+            const domains = ["gmail.com", "outlook.com", "yahoo.com", "protonmail.com", "icloud.com"];
+            const names = ["billing", "finance", "accounts", "payments", "support", "admin"];
+            const domain = domains[Math.floor(Math.random() * domains.length)];
+            const name = names[Math.floor(Math.random() * names.length)];
+            document.getElementById('companyEmail').value = `${name}@${domain}`;
+            updatePreview();
+        }
+        
+        // Random client name generator
+        function randomClient() {
+            const firstNames = ["John", "Emma", "Michael", "Sarah", "David", "Lisa", "James", "Jennifer", "Robert", "Emily"];
+            const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Garcia", "Wilson", "Taylor"];
+            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            document.getElementById('clientName').value = `${firstName} ${lastName}`;
+            updatePreview();
+        }
+        
+        // Random client ID generator
+        function randomID() {
+            const prefix = "CL-";
+            const id = Math.floor(10000 + Math.random() * 90000);
+            document.getElementById('clientID').value = prefix + id;
+            updatePreview();
+        }
+        
+        // Random amount generator
+        function randomAmount() {
+            const amount = (19.99 + Math.random() * 180).toFixed(2);
+            document.getElementById('amount').value = amount;
+            updatePreview();
+        }
+        
+        // Random transaction ID generator
+        function randomTxnID() {
+            const prefix = "TXN-";
+            const id = Math.floor(10000 + Math.random() * 90000);
+            document.getElementById('transactionID').value = prefix + id;
+            updatePreview();
+        }
+        
+        // Random invoice number generator
+        function randomInvoiceNumber() {
+            const year = new Date().getFullYear();
+            const num = Math.floor(100 + Math.random() * 900);
+            document.getElementById('invoiceNumber').value = `INV-${year}-${num}`;
+            updatePreview();
+        }
+        
+        // Toggle visibility of fields
+        function toggleVisibility(fieldId) {
+            const field = document.getElementById(fieldId);
+            const previewField = document.getElementById('preview' + capitalizeFirstLetter(fieldId));
+            
+            if (field.style.textDecoration === 'line-through') {
+                field.style.textDecoration = 'none';
+                previewField.style.display = '';
+            } else {
+                field.style.textDecoration = 'line-through';
+                previewField.style.display = 'none';
+            }
+        }
+        
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        
+        // Update preview with current values
+        function updatePreview() {
+            // Company info
+            document.getElementById('previewCompanyName').textContent = document.getElementById('companyName').value;
+            document.getElementById('previewCompanyWebsite').textContent = document.getElementById('companyWebsite').value;
+            document.getElementById('previewCompanyEmail').textContent = document.getElementById('companyEmail').value;
+            
+            // Invoice details
+            document.getElementById('previewInvoiceNumber').textContent = document.getElementById('invoiceNumber').value;
+            document.getElementById('previewInvoiceDate').textContent = document.getElementById('invoiceDate').value;
+            
+            // Client info
+            document.getElementById('previewClientName').textContent = document.getElementById('clientName').value;
+            document.getElementById('previewClientID').textContent = document.getElementById('clientID').value;
+            
+            // Payment info
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            document.getElementById('previewPaymentMethod').textContent = paymentMethod;
+            
+            const cardDetails = document.getElementById('cardLast4').value || '3357';
+            document.getElementById('previewCardDetails').textContent = paymentMethod === 'Credit Card' ? `Card ending in: ${cardDetails}` : '';
+            document.getElementById('previewCardDetails').style.display = paymentMethod === 'Credit Card' ? 'block' : 'none';
+            
+            document.getElementById('previewTxnID').textContent = document.getElementById('transactionID').value;
+            
+            // Service info
+            let serviceDesc = document.getElementById('serviceDescription').value;
+            if (serviceDesc === 'Custom') {
+                serviceDesc = document.getElementById('customService').value;
+            }
+            document.getElementById('previewService').textContent = serviceDesc;
+            
+            // Calculate period
+            const startDate = new Date(document.getElementById('startDate').value);
+            const months = parseInt(document.getElementById('months').value);
+            const endDate = new Date(startDate);
+            endDate.setMonth(startDate.getMonth() + months);
+            
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('previewPeriod').textContent = 
+                `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+            
+            // Amounts
+            const amount = parseFloat(document.getElementById('amount').value || 0).toFixed(2);
+            const currency = document.getElementById('currency').value;
+            const symbol = currency === 'USD' ? '$' : 
+                          currency === 'EUR' ? '€' : 
+                          currency === 'GBP' ? '£' : 
+                          currency === 'CAD' ? 'C$' : 
+                          currency === 'AUD' ? 'A$' : '$';
+            
+            document.getElementById('previewAmount').textContent = `${symbol}${amount}`;
+            document.getElementById('previewSubtotal').textContent = `${symbol}${amount}`;
+            document.getElementById('previewTax').textContent = `${symbol}0.00`;
+            document.getElementById('previewTotal').textContent = `${symbol}${amount}`;
+        }
+        
+        // Download functions
+        function downloadPDF() {
+            if (isInIframe()) {
+                showDownloadLink('pdf');
+            } else {
+                const { jsPDF } = window.jspdf;
+                const invoiceElement = document.getElementById('invoice');
+                
+                html2canvas(invoiceElement, {
+                    scale: 2,
+                    useCORS: true
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const imgWidth = 210; // A4 width in mm
+                    const pageHeight = 297; // A4 height in mm
+                    const imgHeight = canvas.height * imgWidth / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+                    
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                    
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+                    
+                    pdf.save('invoice.pdf');
+                });
+            }
+        }
+        
+        function downloadPNG() {
+            if (isInIframe()) {
+                showDownloadLink('png');
+            } else {
+                const invoiceElement = document.getElementById('invoice');
+                
+                html2canvas(invoiceElement, {
+                    scale: 2,
+                    useCORS: true
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'invoice.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+            }
+        }
+        
+        function downloadWord() {
+            if (isInIframe()) {
+                showDownloadLink('doc');
+            } else {
+                const invoiceElement = document.getElementById('invoice');
+                const htmlContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Invoice</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 50px; }
+                            .invoice-container { max-width: 800px; margin: 0 auto; }
+                            .invoice-header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+                            .invoice-title { font-size: 28px; font-weight: bold; }
+                            .invoice-details { display: flex; justify-content: space-between; margin: 25px 0; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0 30px; }
+                            th { background-color: #3498db; color: white; text-align: left; padding: 12px 15px; }
+                            td { padding: 12px 15px; border-bottom: 1px solid #ddd; }
+                            .invoice-summary { text-align: right; margin-top: 30px; }
+                            .total-row { font-size: 18px; font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 2px solid #3498db; }
+                        </style>
+                    </head>
+                    <body>
+                        ${invoiceElement.outerHTML}
+                    </body>
+                    </html>
+                `;
+                
+                const blob = new Blob([htmlContent], {type: 'application/msword'});
+                const link = document.createElement('a');
+                link.download = 'invoice.doc';
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            }
+        }
+        
+        // Check if page is in iframe
+        function isInIframe() {
+            try {
+                return window.self !== window.top;
+            } catch (e) {
+                return true;
+            }
+        }
+        
+        // Show download link modal
+        function showDownloadLink(type) {
+            const modal = document.getElementById('iframeModal');
+            const linkInput = document.getElementById('downloadLink');
+            
+            // Generate a unique ID for this download
+            const downloadId = 'dl_' + Date.now();
+            
+            // Create a URL that we can use to trigger the download
+            // In a real application, this would be handled server-side
+            const downloadUrl = `${window.location.href.split('?')[0]}?download=${downloadId}&type=${type}`;
+            
+            linkInput.value = downloadUrl;
+            modal.style.display = 'flex';
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('iframeModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

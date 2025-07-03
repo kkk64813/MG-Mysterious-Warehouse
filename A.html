@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Restaurant Receipt Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff6b00;
+            --secondary-color: #8e44ad;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --border-color: #ddd;
+            --receipt-bg: #ffffff;
+            --text-color: #333;
+            --font-size-base: 12px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+        }
+        
+        .receipt-container {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 500px;
+        }
+        
+        .receipt-preview {
+            background-color: var(--receipt-bg);
+            padding: 20px;
+            border: 1px dashed #ccc;
+            width: 100%;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: var(--font-size-base);
+        }
+        
+        .receipt-preview::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b00, #8e44ad);
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select, button, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            background-color: #e55a00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-group button {
+            flex: 1;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7d3c98;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+        }
+        
+        .error {
+            color: var(--error-color);
+            font-size: 0.9rem;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .restaurant-logo {
+            max-width: 100px;
+            max-height: 100px;
+            margin: 0 auto 10px;
+            display: block;
+        }
+        
+        .receipt-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        
+        .receipt-address {
+            font-size: 12px;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        .receipt-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 12px;
+            width: 100%;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        
+        .items-table th {
+            text-align: left;
+            padding: 5px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+        
+        .items-table td {
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .items-table .item-name {
+            width: 50%;
+        }
+        
+        .items-table .item-price, 
+        .items-table .item-qty,
+        .items-table .item-total {
+            width: 15%;
+            text-align: right;
+        }
+        
+        .total-section {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .grand-total {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px dashed #333;
+        }
+        
+        .grand-total-emphasized {
+            font-size: 22px;
+            font-weight: 900;
+            color: #d35400;
+            background-color: #fff3e0;
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-top: 3px solid #333;
+        }
+        
+        .payment-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+            font-size: 12px;
+            width: 100%;
+        }
+        
+        .barcode-container {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .barcode {
+            height: 50px;
+        }
+        
+        .footer-note {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 15px;
+            color: #666;
+            width: 100%;
+        }
+        
+        .export-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .export-btn {
+            background-color: #3498db;
+            padding: 12px;
+        }
+        
+        .export-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .export-btn.png {
+            background-color: #9b59b6;
+        }
+        
+        .export-btn.png:hover {
+            background-color: #8e44ad;
+        }
+        
+        /* New styles for receipt themes */
+        .theme-classic {
+            /* Classic vertical layout */
+        }
+        
+        .theme-modern {
+            /* Modern layout - horizontal info */
+            .receipt-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .items-table th {
+                text-align: center;
+            }
+            .items-table td {
+                text-align: center;
+            }
+            .total-section {
+                text-align: center;
+            }
+        }
+        
+        .theme-compact {
+            /* Compact layout - small fonts, reduced spacing */
+            .receipt-title {
+                font-size: 20px;
+            }
+            .receipt-address, .receipt-info {
+                font-size: 10px;
+            }
+            .items-table {
+                font-size: 10px;
+            }
+            .grand-total {
+                font-size: 16px;
+            }
+        }
+        
+        .theme-elegant {
+            /* Elegant layout - serif fonts */
+            font-family: 'Times New Roman', serif;
+            .receipt-title {
+                font-family: 'Georgia', serif;
+            }
+            .items-table {
+                border-top: 1px solid #ccc;
+                border-bottom: 1px solid #ccc;
+            }
+        }
+        
+        .theme-detailed {
+            /* Detailed layout - extra info */
+            .receipt-header {
+                border-bottom: 2px solid var(--primary-color);
+                padding-bottom: 10px;
+            }
+            .receipt-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .items-table .item-name {
+                width: 40%;
+            }
+            .items-table .item-price {
+                width: 20%;
+            }
+        }
+        
+        .theme-minimalist {
+            /* Minimalist layout - simplest design */
+            .receipt-header {
+                padding: 10px 0;
+            }
+            .receipt-title {
+                font-size: 20px;
+                margin-bottom: 2px;
+            }
+            .receipt-address {
+                font-size: 10px;
+                margin-bottom: 2px;
+            }
+            .items-table {
+                font-size: 11px;
+            }
+            .grand-total {
+                font-size: 16px;
+            }
+            .footer-note {
+                font-size: 9px;
+            }
+        }
+        
+        .theme-business {
+            /* Business layout - formal style */
+            .receipt-header {
+                background-color: #f5f5f5;
+                padding: 15px;
+                border-radius: 5px;
+            }
+            .items-table th {
+                background-color: #f0f0f0;
+            }
+        }
+        
+        .theme-vintage {
+            /* Vintage layout - old style */
+            background-color: #faf0e6;
+            .receipt-title {
+                color: #8b4513;
+            }
+            .items-table {
+                border-top: 1px dashed #8b4513;
+                border-bottom: 1px dashed #8b4513;
+            }
+            .grand-total {
+                border-top: 2px dashed #8b4513;
+            }
+        }
+        
+        .theme-colorful {
+            /* Colorful layout - multiple colors */
+            .receipt-title {
+                color: #e74c3c;
+            }
+            .receipt-info div:first-child {
+                color: #3498db;
+            }
+            .receipt-info div:last-child {
+                color: #27ae60;
+            }
+            .grand-total {
+                color: #d35400;
+            }
+        }
+        
+        .theme-tech {
+            /* Tech layout - modern tech feel */
+            .receipt-header {
+                border-bottom: 1px solid #3498db;
+            }
+            .receipt-title {
+                color: #2980b9;
+            }
+            .items-table th {
+                background-color: #f0f7ff;
+            }
+        }
+        
+        /* Font size classes - FIXED */
+        .font-size-1 .receipt-preview { font-size: 10px !important; }
+        .font-size-2 .receipt-preview { font-size: 12px !important; }
+        .font-size-3 .receipt-preview { font-size: 14px !important; }
+        .font-size-4 .receipt-preview { font-size: 16px !important; }
+        .font-size-5 .receipt-preview { font-size: 18px !important; }
+        
+        @media print {
+            body {
+                background: white !important;
+                padding: 0;
+                margin: 0;
+            }
+            body * {
+                visibility: hidden;
+            }
+            .receipt-preview, .receipt-preview * {
+                visibility: visible;
+                background: white !important;
+            }
+            .receipt-preview {
+                position: absolute;
+                left: 50%;
+                top: 0;
+                transform: translateX(-50%);
+                width: 100%;
+                max-width: 400px;
+                box-shadow: none;
+                border: none;
+            }
+            .container, .receipt-container {
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-panel, .receipt-container {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .receipt-preview {
+                max-width: 100%;
+            }
+            
+            .export-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Receipt content */
+        .receipt-content {
+            width: 100%;
+            max-width: 350px;
+        }
+        
+        /* 58mm specific styles */
+        .paper-size-58 .receipt-content {
+            max-width: 230px;
+            padding: 0 5px;
+        }
+        
+        .paper-size-58 .receipt-header {
+            padding: 0 5px;
+        }
+        
+        .paper-size-58 .receipt-title {
+            font-size: 20px;
+        }
+        
+        .paper-size-58 .receipt-address {
+            font-size: 10px;
+        }
+        
+        .paper-size-58 .items-table {
+            font-size: 10px;
+        }
+        
+        .paper-size-58 .grand-total-emphasized {
+            font-size: 18px;
+            padding: 5px;
+        }
+        
+        /* Export white background */
+        .white-bg-export {
+            background-color: white !important;
+            color: black !important;
+        }
+        
+        /* Paper size selector style */
+        .paper-size-selector {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row > * {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Advanced Restaurant Receipt Generator</h1>
+            <p>Create customizable receipts with GST calculation, multiple export options, and thermal printer support</p>
+        </header>
+        
+        <div class="control-panel">
+            <div class="control-group">
+                <h3>Receipt Customization</h3>
+                
+                <div class="form-row">
+                    <div>
+                        <label for="receipt-theme">Theme</label>
+                        <select id="receipt-theme">
+                            <option value="theme-classic">Classic</option>
+                            <option value="theme-modern">Modern</option>
+                            <option value="theme-compact">Compact</option>
+                            <option value="theme-elegant">Elegant</option>
+                            <option value="theme-detailed">Detailed</option>
+                            <option value="theme-minimalist">Minimalist</option>
+                            <option value="theme-business">Business</option>
+                            <option value="theme-vintage">Vintage</option>
+                            <option value="theme-colorful">Colorful</option>
+                            <option value="theme-tech">Tech</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="font-size">Font Size</label>
+                        <select id="font-size">
+                            <option value="font-size-1">Level 1 (Smallest)</option>
+                            <option value="font-size-2" selected>Level 2 (Standard)</option>
+                            <option value="font-size-3">Level 3</option>
+                            <option value="font-size-4">Level 4</option>
+                            <option value="font-size-5">Level 5 (Largest)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div>
+                        <label for="paper-size">Paper Size</label>
+                        <select id="paper-size">
+                            <option value="58">58mm</option>
+                            <option value="80">80mm</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="remove-logo-checkbox" style="margin-top: 25px;">
+                            <input type="checkbox" id="remove-logo-checkbox"> Remove Logo
+                        </label>
+                    </div>
+                </div>
+                
+                <label for="show-total-column">
+                    <input type="checkbox" id="show-total-column" checked> Show "Total" Column
+                </label>
+            </div>
+            
+            <div class="control-group">
+                <h3>Restaurant Information</h3>
+                <div class="btn-group">
+                    <button id="random-restaurant" class="btn-secondary">Random Restaurant</button>
+                    <button id="remove-logo">Remove Logo</button>
+                </div>
+                <label for="restaurant-name">Restaurant Name</label>
+                <input type="text" id="restaurant-name" placeholder="Enter restaurant name">
+                
+                <label for="restaurant-address">Address</label>
+                <select id="city-select">
+                    <option value="Pune">Pune</option>
+                    <option value="Ahmedabad">Ahmedabad</option>
+                    <option value="Gurgaon">Gurgaon</option>
+                    <option value="Mumbai">Mumbai</option>
+                </select>
+                <textarea id="restaurant-address" placeholder="Full address"></textarea>
+                
+                <label for="gstin">GSTIN</label>
+                <input type="text" id="gstin" placeholder="GST identification number">
+                
+                <label for="logo-upload">Upload Logo</label>
+                <input type="file" id="logo-upload" accept="image/*">
+            </div>
+            
+            <div class="control-group">
+                <h3>Order Details</h3>
+                <div class="btn-group">
+                    <button id="random-receipt">Random Receipt</button>
+                    <button id="random-time">Random Time</button>
+                </div>
+                
+                <div class="form-row">
+                    <div>
+                        <label for="receipt-number">Receipt Number</label>
+                        <input type="text" id="receipt-number" placeholder="Receipt number">
+                    </div>
+                    
+                    <div>
+                        <label for="waiter-name">Waiter Name</label>
+                        <input type="text" id="waiter-name" placeholder="Waiter name">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div>
+                        <label for="order-date">Date</label>
+                        <input type="date" id="order-date">
+                    </div>
+                    
+                    <div>
+                        <label for="order-time">Time</label>
+                        <input type="time" id="order-time">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Menu Items</h3>
+                <div class="btn-group">
+                    <button id="random-items">Random Items</button>
+                    <button id="add-item">Add Item</button>
+                </div>
+                
+                <label>Generate Random Items</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="number" id="main-course-count" placeholder="Mains" min="0" max="10" value="2" style="flex: 1;">
+                    <input type="number" id="drink-count" placeholder="Drinks" min="0" max="10" value="1" style="flex: 1;">
+                    <input type="number" id="dessert-count" placeholder="Desserts" min="0" max="10" value="1" style="flex: 1;">
+                </div>
+                
+                <label for="target-price">Target Price (₹)</label>
+                <input type="number" id="target-price" placeholder="Target total before tax" value="1200">
+                
+                <div id="items-container">
+                    <!-- Dynamically generated items -->
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Payment & Tax</h3>
+                <label for="gst-rate">GST Rate (%)</label>
+                <input type="number" id="gst-rate" value="18" min="0" max="30" step="0.1">
+                
+                <label>Payment Method</label>
+                <div class="btn-group">
+                    <button data-method="cash" class="payment-method">Cash</button>
+                    <button data-method="card" class="payment-method active">Credit Card</button>
+                </div>
+                
+                <div id="cash-payment" style="display: none;">
+                    <label for="cash-amount">Cash Amount (₹)</label>
+                    <input type="number" id="cash-amount" placeholder="Amount received">
+                    <div id="cash-error" class="error">Insufficient amount!</div>
+                </div>
+                
+                <div id="card-payment">
+                    <label for="card-last4">Card Last 4 Digits</label>
+                    <input type="text" id="card-last4" placeholder="Last 4 digits" value="3357" maxlength="4">
+                </div>
+                
+                <div class="form-row">
+                    <div>
+                        <label for="payment-status">Payment Status</label>
+                        <select id="payment-status">
+                            <option value="Payment Successful">Payment Successful</option>
+                            <option value="Payment Completed">Payment Completed</option>
+                            <option value="Transaction Approved">Transaction Approved</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="welcome-message">Welcome Message</label>
+                        <select id="welcome-message">
+                            <option value="Thank you for dining with us!">Thank you for dining with us!</option>
+                            <option value="We appreciate your business!">We appreciate your business!</option>
+                            <option value="Come back soon!">Come back soon!</option>
+                            <option value="Enjoy your meal!">Enjoy your meal!</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Print & Export</h3>
+                <label for="export-resolution">Export Resolution</label>
+                <select id="export-resolution">
+                    <option value="1">Standard (1x)</option>
+                    <option value="2" selected>High (2x)</option>
+                    <option value="3">Ultra (3x)</option>
+                </select>
+                
+                <div class="btn-group">
+                    <button id="update-receipt" class="btn-success">Update Receipt</button>
+                    <button id="print-receipt">Print</button>
+                </div>
+                
+                <div class="export-buttons">
+                    <button id="save-pdf" class="export-btn">Save as PDF</button>
+                    <button id="save-jpg" class="export-btn">Save as JPG</button>
+                    <button id="save-png" class="export-btn png">Save as PNG</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="receipt-container">
+            <div class="paper-size-selector">
+                <label>Preview Size: </label>
+                <select id="preview-paper-size">
+                    <option value="58">58mm</option>
+                    <option value="80">80mm</option>
+                </select>
+            </div>
+            
+            <div class="receipt-preview" id="receipt">
+                <div class="receipt-content">
+                    <div class="receipt-header">
+                        <img src="" alt="Restaurant Logo" class="restaurant-logo" id="receipt-logo">
+                        <div class="receipt-title" id="receipt-restaurant">Spice Paradise</div>
+                        <div class="receipt-address" id="receipt-address">123 Main Street, Pune, Maharashtra 411001</div>
+                        <div class="receipt-address">GSTIN: <span id="receipt-gstin">27ABCDE1234F1Z5</span></div>
+                    </div>
+                    
+                    <div class="receipt-info">
+                        <div>
+                            <div>Receipt: <span id="receipt-number-display">#IN-2023-00125</span></div>
+                            <div>Date: <span id="receipt-date">2023-10-15</span></div>
+                        </div>
+                        <div>
+                            <div>Time: <span id="receipt-time">19:30</span></div>
+                            <div>Waiter: <span id="receipt-waiter">Rajesh Kumar</span></div>
+                        </div>
+                    </div>
+                    
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th class="item-name">Item</th>
+                                <th class="item-price">Price</th>
+                                <th class="item-qty">Qty</th>
+                                <th class="item-total">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="receipt-items">
+                            <tr>
+                                <td class="item-name">Butter Chicken</td>
+                                <td class="item-price">₹320.00</td>
+                                <td class="item-qty">2</td>
+                                <td class="item-total">₹640.00</td>
+                            </tr>
+                            <tr>
+                                <td class="item-name">Garlic Naan</td>
+                                <td class="item-price">₹60.00</td>
+                                <td class="item-qty">4</td>
+                                <td class="item-total">₹240.00</td>
+                            </tr>
+                            <tr>
+                                <td class="item-name">Mango Lassi</td>
+                                <td class="item-price">₹90.00</td>
+                                <td class="item-qty">2</td>
+                                <td class="item-total">₹180.00</td>
+                            </tr>
+                            <tr>
+                                <td class="item-name">Gulab Jamun</td>
+                                <td class="item-price">₹120.00</td>
+                                <td class="item-qty">2</td>
+                                <td class="item-total">₹240.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="total-section">
+                        <div>Subtotal: <span id="subtotal">₹1300.00</span></div>
+                        <div>GST (<span id="gst-percent">18</span>%): <span id="gst-amount">₹234.00</span></div>
+                        <div class="grand-total grand-total-emphasized">Total: <span id="grand-total">₹1534.00</span></div>
+                    </div>
+                    
+                    <div class="payment-info">
+                        <div>Payment Status: <span id="payment-status-display">Payment Successful</span></div>
+                        <div>Payment Method: <span id="payment-method">Credit Card</span></div>
+                        <div id="cash-info" style="display: none;">Cash Received: ₹1600.00 | Change: ₹66.00</div>
+                        <div id="card-info">Card: **** **** **** <span id="card-digits">3357</span></div>
+                    </div>
+                    
+                    <div class="barcode-container">
+                        <svg id="barcode"></svg>
+                        <div id="qrcode"></div>
+                    </div>
+                    
+                    <div class="footer-note">
+                        <span id="welcome-message-display">Thank you for dining with us!</span><br>
+                        Service charge not included<br>
+                        *This is a computer generated receipt
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for random generation
+        const restaurantNames = [
+            "Spice Paradise", "Royal Tandoor", "Mumbai Masala", "Delhi Darbar", "Punjab Grill", 
+            "Kolkata Kitchen", "Chennai Curry", "Jaipur Junction", "Hyderabad House", "Goan Grill"
+        ];
+        
+        const streetNames = {
+            Pune: ["FC Road", "JM Road", "Koregaon Park", "Baner Road", "Aundh Road"],
+            Ahmedabad: ["CG Road", "SG Highway", "Prahlad Nagar", "Maninagar", "Vastrapur"],
+            Gurgaon: ["MG Road", "Cyber Hub", "Sohna Road", "DLF Phase", "Sector 29"],
+            Mumbai: ["Marine Drive", "Bandra Kurla", "Linking Road", "Colaba Causeway", "Juhu Tara Road"]
+        };
+        
+        const waiterNames = [
+            "Rajesh Kumar", "Priya Sharma", "Vikram Singh", "Anjali Patel", "Sanjay Gupta"
+        ];
+        
+        const mainCourses = [
+            { name: "Butter Chicken", price: 320 },
+            { name: "Chicken Tikka Masala", price: 340 },
+            { name: "Palak Paneer", price: 280 },
+            { name: "Lamb Rogan Josh", price: 420 }
+        ];
+        
+        const drinks = [
+            { name: "Mango Lassi", price: 90 },
+            { name: "Sweet Lassi", price: 80 },
+            { name: "Masala Chai", price: 60 },
+            { name: "Filter Coffee", price: 70 }
+        ];
+        
+        const desserts = [
+            { name: "Gulab Jamun", price: 120 },
+            { name: "Rasmalai", price: 140 },
+            { name: "Kheer", price: 100 },
+            { name: "Rasgulla", price: 110 }
+        ];
+        
+        // DOM elements
+        const receiptElement = document.getElementById('receipt');
+        const receiptContainer = document.querySelector('.receipt-container');
+        
+        // Initialize the receipt
+        document.addEventListener('DOMContentLoaded', function() {
+            generateRandomReceipt();
+            generateBarcode();
+            
+            // Set current date as default
+            const now = new Date();
+            document.getElementById('order-date').valueAsDate = now;
+            document.getElementById('order-time').value = now.toTimeString().substr(0, 5);
+            
+            // Event listeners
+            document.getElementById('random-restaurant').addEventListener('click', generateRandomRestaurant);
+            document.getElementById('random-receipt').addEventListener('click', generateRandomReceipt);
+            document.getElementById('random-time').addEventListener('click', generateRandomTime);
+            document.getElementById('random-items').addEventListener('click', generateRandomItems);
+            document.getElementById('add-item').addEventListener('click', addEmptyItem);
+            document.getElementById('update-receipt').addEventListener('click', updateReceipt);
+            document.getElementById('print-receipt').addEventListener('click', printReceipt);
+            document.getElementById('save-pdf').addEventListener('click', saveAsPDF);
+            document.getElementById('save-jpg').addEventListener('click', saveAsJPG);
+            document.getElementById('save-png').addEventListener('click', saveAsPNG);
+            document.getElementById('remove-logo').addEventListener('click', removeLogo);
+            document.getElementById('logo-upload').addEventListener('change', handleLogoUpload);
+            document.getElementById('remove-logo-checkbox').addEventListener('change', toggleLogo);
+            document.getElementById('preview-paper-size').addEventListener('change', updatePreviewSize);
+            
+            // Customization event listeners
+            document.getElementById('receipt-theme').addEventListener('change', updateTheme);
+            document.getElementById('font-size').addEventListener('change', updateFontSize);
+            document.getElementById('show-total-column').addEventListener('change', updateReceipt);
+            document.getElementById('payment-status').addEventListener('change', updateReceipt);
+            document.getElementById('welcome-message').addEventListener('change', updateReceipt);
+            document.getElementById('paper-size').addEventListener('change', updatePaperSize);
+            
+            // Payment method toggle
+            document.querySelectorAll('.payment-method').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.payment-method').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (this.dataset.method === 'cash') {
+                        document.getElementById('cash-payment').style.display = 'block';
+                        document.getElementById('card-payment').style.display = 'none';
+                    } else {
+                        document.getElementById('cash-payment').style.display = 'none';
+                        document.getElementById('card-payment').style.display = 'block';
+                    }
+                    
+                    updateReceipt();
+                });
+            });
+        });
+        
+        // Update theme
+        function updateTheme() {
+            const theme = document.getElementById('receipt-theme').value;
+            receiptElement.className = 'receipt-preview ' + theme;
+            updateReceipt();
+        }
+        
+        // Update font size - FIXED
+        function updateFontSize() {
+            const fontSize = document.getElementById('font-size').value;
+            // Remove all font size classes
+            receiptContainer.classList.remove('font-size-1', 'font-size-2', 'font-size-3', 'font-size-4', 'font-size-5');
+            // Add current font size class
+            receiptContainer.classList.add(fontSize);
+        }
+        
+        // Toggle logo display
+        function toggleLogo() {
+            const removeLogo = document.getElementById('remove-logo-checkbox').checked;
+            document.getElementById('receipt-logo').style.display = removeLogo ? 'none' : 'block';
+        }
+        
+        // Update paper size
+        function updatePaperSize() {
+            const size = document.getElementById('paper-size').value;
+            const content = document.querySelector('.receipt-content');
+            content.classList.remove('paper-size-58', 'paper-size-80');
+            if (size === '58') {
+                content.classList.add('paper-size-58');
+            } else {
+                content.classList.add('paper-size-80');
+            }
+        }
+        
+        // Update preview size
+        function updatePreviewSize() {
+            const size = document.getElementById('preview-paper-size').value;
+            const content = document.querySelector('.receipt-content');
+            content.classList.remove('paper-size-58', 'paper-size-80');
+            if (size === '58') {
+                content.classList.add('paper-size-58');
+            } else {
+                content.classList.add('paper-size-80');
+            }
+        }
+        
+        // Generate random restaurant details
+        function generateRandomRestaurant() {
+            const name = restaurantNames[Math.floor(Math.random() * restaurantNames.length)];
+            const city = document.getElementById('city-select').value;
+            const street = streetNames[city][Math.floor(Math.random() * streetNames[city].length)];
+            const number = Math.floor(Math.random() * 200) + 1;
+            const zip = Math.floor(Math.random() * 400000) + 100000;
+            
+            document.getElementById('restaurant-name').value = name;
+            document.getElementById('restaurant-address').value = `${number} ${street}, ${city}, ${getState(city)} ${zip}`;
+            document.getElementById('gstin').value = generateGSTIN();
+            
+            // Random logo (placeholder for demo)
+            const logos = [
+                'https://cdn-icons-png.flaticon.com/512/1995/1995515.png',
+                'https://cdn-icons-png.flaticon.com/512/135/135658.png',
+                'https://cdn-icons-png.flaticon.com/512/5787/5787100.png',
+                'https://cdn-icons-png.flaticon.com/512/5787/5787094.png'
+            ];
+            document.getElementById('receipt-logo').src = logos[Math.floor(Math.random() * logos.length)];
+            
+            updateReceipt();
+        }
+        
+        // Get state based on city
+        function getState(city) {
+            const states = {
+                Pune: "Maharashtra",
+                Ahmedabad: "Gujarat",
+                Gurgaon: "Haryana",
+                Mumbai: "Maharashtra"
+            };
+            return states[city] || "";
+        }
+        
+        // Generate random GSTIN
+        function generateGSTIN() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '27';
+            for (let i = 0; i < 13; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+        
+        // Generate random receipt
+        function generateRandomReceipt() {
+            generateRandomRestaurant();
+            
+            // Generate random receipt number
+            const receiptNum = `#IN-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000).toString().padStart(4, '0')}`;
+            document.getElementById('receipt-number').value = receiptNum;
+            
+            // Generate random waiter name
+            const waiter = waiterNames[Math.floor(Math.random() * waiterNames.length)];
+            document.getElementById('waiter-name').value = waiter;
+            
+            // Generate random time
+            generateRandomTime();
+            
+            // Generate random items
+            generateRandomItems();
+            
+            // Set random customization options
+            document.getElementById('receipt-theme').selectedIndex = Math.floor(Math.random() * 10);
+            document.getElementById('font-size').selectedIndex = Math.floor(Math.random() * 5);
+            document.getElementById('payment-status').selectedIndex = Math.floor(Math.random() * 3);
+            document.getElementById('welcome-message').selectedIndex = Math.floor(Math.random() * 4);
+            
+            updateTheme();
+            updateFontSize();
+            updateReceipt();
+        }
+        
+        // Generate random time within last 3 days (24-hour format)
+        function generateRandomTime() {
+            const now = new Date();
+            const threeDaysAgo = new Date(now);
+            threeDaysAgo.setDate(now.getDate() - 3);
+            
+            const randomDate = new Date(threeDaysAgo.getTime() + Math.random() * (now.getTime() - threeDaysAgo.getTime()));
+            
+            document.getElementById('order-date').valueAsDate = randomDate;
+            
+            // Random time in 24-hour format
+            const hours = Math.floor(Math.random() * 24);
+            const minutes = Math.floor(Math.random() * 60);
+            document.getElementById('order-time').value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            
+            updateReceipt();
+        }
+        
+        // Generate random items based on counts (without duplicates)
+        function generateRandomItems() {
+            const itemsContainer = document.getElementById('items-container');
+            itemsContainer.innerHTML = '';
+            
+            const mainCount = parseInt(document.getElementById('main-course-count').value) || 0;
+            const drinkCount = parseInt(document.getElementById('drink-count').value) || 0;
+            const dessertCount = parseInt(document.getElementById('dessert-count').value) || 0;
+            const targetPrice = parseFloat(document.getElementById('target-price').value) || 1000;
+            
+            // Generate items
+            let generatedItems = [];
+            let usedItems = new Set(); // Track used item names to avoid duplicates
+            
+            // Helper function to add items without duplicates
+            const addItems = (category, count) => {
+                const items = category === 'main' ? mainCourses : (category === 'drink' ? drinks : desserts);
+                const availableItems = [...items]; // Copy of the original array
+                
+                for (let i = 0; i < count; i++) {
+                    if (availableItems.length === 0) {
+                        break; // No more unique items available
+                    }
+                    
+                    // Find a random item that hasn't been used
+                    const randomIndex = Math.floor(Math.random() * availableItems.length);
+                    const randomItem = availableItems[randomIndex];
+                    
+                    // Check if this item is already used
+                    if (!usedItems.has(randomItem.name)) {
+                        generatedItems.push({
+                            name: randomItem.name,
+                            price: randomItem.price,
+                            qty: 1
+                        });
+                        usedItems.add(randomItem.name);
+                        availableItems.splice(randomIndex, 1); // Remove from available items
+                    }
+                }
+            };
+            
+            addItems('main', mainCount);
+            addItems('drink', drinkCount);
+            addItems('dessert', dessertCount);
+            
+            // Adjust prices to meet target (within ±12%)
+            const currentTotal = generatedItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const adjustmentFactor = targetPrice / currentTotal;
+            
+            if (adjustmentFactor < 0.88 || adjustmentFactor > 1.12) {
+                // Adjust each price proportionally
+                generatedItems.forEach(item => {
+                    item.price = Math.round(item.price * adjustmentFactor * (0.95 + Math.random() * 0.1));
+                });
+            }
+            
+            // Add items to form
+            generatedItems.forEach(item => {
+                addItemToForm(item.name, item.price, item.qty);
+            });
+            
+            updateReceipt();
+        }
+        
+        // Add item to form
+        function addItemToForm(name, price, qty) {
+            const itemsContainer = document.getElementById('items-container');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item-row';
+            itemDiv.style.display = 'flex';
+            itemDiv.style.gap = '10px';
+            itemDiv.style.marginBottom = '10px';
+            
+            itemDiv.innerHTML = `
+                <input type="text" placeholder="Item name" value="${name}" style="flex: 3;">
+                <input type="number" placeholder="Price" value="${price}" min="0" step="0.01" style="flex: 2;">
+                <input type="number" placeholder="Qty" value="${qty}" min="1" style="flex: 1;">
+                <button class="remove-item" style="flex: 1; background: #e74c3c;">×</button>
+            `;
+            
+            itemsContainer.appendChild(itemDiv);
+            
+            // Add event listener to remove button
+            itemDiv.querySelector('.remove-item').addEventListener('click', function() {
+                itemDiv.remove();
+                updateReceipt();
+            });
+            
+            // Add event listeners to inputs
+            itemDiv.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', updateReceipt);
+            });
+        }
+        
+        // Add empty item to form
+        function addEmptyItem() {
+            addItemToForm('', 0, 1);
+            updateReceipt();
+        }
+        
+        // Remove logo
+        function removeLogo() {
+            document.getElementById('receipt-logo').src = '';
+            updateReceipt();
+        }
+        
+        // Handle logo upload
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('receipt-logo').src = e.target.result;
+                    updateReceipt();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Generate barcode
+        function generateBarcode() {
+            const receiptNum = document.getElementById('receipt-number').value || 'IN-001';
+            JsBarcode("#barcode", receiptNum, {
+                format: "CODE128",
+                displayValue: false,
+                width: 1.5,
+                height: 40
+            });
+        }
+        
+        // Update receipt preview
+        function updateReceipt() {
+            // Update restaurant info
+            document.getElementById('receipt-restaurant').textContent = 
+                document.getElementById('restaurant-name').value || 'Indian Restaurant';
+                
+            document.getElementById('receipt-address').textContent = 
+                document.getElementById('restaurant-address').value || '123 Indian Street, India';
+                
+            document.getElementById('receipt-gstin').textContent = 
+                document.getElementById('gstin').value || '27ABCDE1234F1Z5';
+                
+            // Update receipt info
+            document.getElementById('receipt-number-display').textContent = 
+                document.getElementById('receipt-number').value || '#IN-2023-00001';
+                
+            const date = document.getElementById('order-date').valueAsDate || new Date();
+            document.getElementById('receipt-date').textContent = date.toISOString().split('T')[0];
+            
+            const time = document.getElementById('order-time').value || '19:30';
+            document.getElementById('receipt-time').textContent = time;
+            
+            document.getElementById('receipt-waiter').textContent = 
+                document.getElementById('waiter-name').value || 'Server Name';
+            
+            // Update items table
+            const itemsTable = document.getElementById('receipt-items');
+            itemsTable.innerHTML = '';
+            
+            let subtotal = 0;
+            const itemsContainer = document.getElementById('items-container');
+            const itemRows = itemsContainer.querySelectorAll('.item-row');
+            
+            itemRows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const name = inputs[0].value || 'Item';
+                const price = parseFloat(inputs[1].value) || 0;
+                const qty = parseInt(inputs[2].value) || 1;
+                const total = price * qty;
+                
+                subtotal += total;
+                
+                const showTotal = document.getElementById('show-total-column').checked;
+                
+                const rowHtml = `
+                    <tr>
+                        <td class="item-name">${name}</td>
+                        <td class="item-price">₹${price.toFixed(2)}</td>
+                        <td class="item-qty">${qty}</td>
+                        ${showTotal ? `<td class="item-total">₹${total.toFixed(2)}</td>` : ''}
+                    </tr>
+                `;
+                
+                itemsTable.innerHTML += rowHtml;
+            });
+            
+            // Show/hide total column header
+            const showTotal = document.getElementById('show-total-column').checked;
+            document.querySelector('.item-total').style.display = showTotal ? 'table-cell' : 'none';
+            document.querySelector('.items-table th:nth-child(4)').style.display = showTotal ? 'table-cell' : 'none';
+            
+            // Calculate totals
+            const gstRate = parseFloat(document.getElementById('gst-rate').value) || 18;
+            const gstAmount = subtotal * (gstRate / 100);
+            const grandTotal = subtotal + gstAmount;
+            
+            document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('gst-percent').textContent = gstRate;
+            document.getElementById('gst-amount').textContent = `₹${gstAmount.toFixed(2)}`;
+            document.getElementById('grand-total').textContent = `₹${grandTotal.toFixed(2)}`;
+            
+            // Update payment info
+            const paymentMethod = document.querySelector('.payment-method.active').dataset.method;
+            document.getElementById('payment-method').textContent = paymentMethod === 'cash' ? 'Cash' : 'Credit Card';
+            
+            // Update payment status
+            const paymentStatus = document.getElementById('payment-status').value;
+            document.getElementById('payment-status-display').textContent = paymentStatus;
+            
+            if (paymentMethod === 'cash') {
+                document.getElementById('cash-info').style.display = 'block';
+                document.getElementById('card-info').style.display = 'none';
+                
+                const cashAmount = parseFloat(document.getElementById('cash-amount').value) || 0;
+                const change = cashAmount - grandTotal;
+                
+                document.getElementById('cash-info').innerHTML = `Cash Received: ₹${cashAmount.toFixed(2)} | Change: ₹${change.toFixed(2)}`;
+                
+                // Show error if insufficient cash
+                const errorElement = document.getElementById('cash-error');
+                if (change < 0) {
+                    errorElement.style.display = 'block';
+                } else {
+                    errorElement.style.display = 'none';
+                }
+            } else {
+                document.getElementById('cash-info').style.display = 'none';
+                document.getElementById('card-info').style.display = 'block';
+                
+                const last4 = document.getElementById('card-last4').value || '3357';
+                document.getElementById('card-digits').textContent = last4;
+            }
+            
+            // Update welcome message
+            const welcomeMessage = document.getElementById('welcome-message').value;
+            document.getElementById('welcome-message-display').textContent = welcomeMessage;
+            
+            // Update logo display
+            toggleLogo();
+            
+            // Update paper size
+            updatePaperSize();
+            
+            // Update preview size
+            updatePreviewSize();
+            
+            // Update barcode
+            generateBarcode();
+        }
+        
+        // Print receipt
+        function printReceipt() {
+            window.print();
+        }
+        
+        // Save as PDF with white background
+        function saveAsPDF() {
+            const { jsPDF } = window.jspdf;
+            const resolution = parseInt(document.getElementById('export-resolution').value) || 2;
+            
+            // Add white background class for export
+            const receipt = document.getElementById('receipt');
+            receipt.classList.add('white-bg-export');
+            
+            html2canvas(receipt, {
+                backgroundColor: '#FFFFFF',
+                scale: resolution
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: [80, 300] // Adjust based on content
+                });
+                
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('restaurant-receipt.pdf');
+                
+                // Remove temporary class
+                receipt.classList.remove('white-bg-export');
+            });
+        }
+        
+        // Save as JPG with white background
+        function saveAsJPG() {
+            const resolution = parseInt(document.getElementById('export-resolution').value) || 2;
+            
+            // Add white background class for export
+            const receipt = document.getElementById('receipt');
+            receipt.classList.add('white-bg-export');
+            
+            html2canvas(receipt, {
+                backgroundColor: '#FFFFFF',
+                scale: resolution
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'restaurant-receipt.jpg';
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+                
+                // Remove temporary class
+                receipt.classList.remove('white-bg-export');
+            });
+        }
+        
+        // Save as PNG with white background
+        function saveAsPNG() {
+            const resolution = parseInt(document.getElementById('export-resolution').value) || 2;
+            
+            // Add white background class for export
+            const receipt = document.getElementById('receipt');
+            receipt.classList.add('white-bg-export');
+            
+            html2canvas(receipt, {
+                backgroundColor: '#FFFFFF',
+                scale: resolution
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'restaurant-receipt.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Remove temporary class
+                receipt.classList.remove('white-bg-export');
+            });
+        }
+    </script>
+</body>
+</html>

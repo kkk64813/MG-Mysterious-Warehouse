@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Mysterious Warehouse</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #121212;
+            --accent-color: #ff6600;
+            --text-color: #f0f0f0;
+            --disabled-color: #444;
+            --card-bg: #1a1a1a;
+            --border-color: #333;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 102, 0, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 102, 0, 0.05) 0%, transparent 20%);
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: var(--secondary-bg);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-color);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 102, 0, 0.4);
+            position: relative;
+        }
+        
+        .logo::after {
+            content: 'WAREHOUSE';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            font-size: 0.8rem;
+            color: #888;
+            letter-spacing: 4px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .language-selector {
+            position: relative;
+        }
+        
+        .language-btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .language-btn:hover {
+            border-color: var(--accent-color);
+        }
+        
+        .activate-btn {
+            background: linear-gradient(135deg, #ff6600, #ff8c00);
+            color: black;
+            font-weight: bold;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .activate-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.3) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: rotate(30deg);
+            transition: all 0.6s;
+        }
+        
+        .activate-btn:hover::before {
+            left: 100%;
+        }
+        
+        .activate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 102, 0, 0.5);
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: var(--secondary-bg);
+            padding: 20px 0;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 5;
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--accent-color), transparent);
+            opacity: 0.3;
+        }
+        
+        .sidebar-item {
+            padding: 18px 30px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            position: relative;
+        }
+        
+        .sidebar-item:hover:not(.disabled) {
+            background-color: var(--card-bg);
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .sidebar-item.active {
+            background-color: var(--card-bg);
+            border-left: 4px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+        
+        .disabled {
+            color: var(--disabled-color);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .enabled {
+            color: var(--accent-color);
+            cursor: pointer;
+        }
+        
+        .enabled:hover {
+            color: #ff8c00;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .intro-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .intro-title {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 25px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .intro-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+        
+        .intro-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: justify;
+            position: relative;
+        }
+        
+        .intro-text::first-letter {
+            font-size: 3rem;
+            color: var(--accent-color);
+            float: left;
+            line-height: 0.8;
+            margin-right: 8px;
+        }
+        
+        .history-timeline {
+            margin-top: 40px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 20px 0 20px 40px;
+            border-left: 3px solid var(--accent-color);
+            margin-bottom: 20px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 24px;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
+        }
+        
+        .timeline-year {
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: var(--secondary-bg);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 30px rgba(255, 102, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--accent-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 26, 26, 0.8);
+        }
+        
+        .modal-title {
+            color: var(--accent-color);
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-btn:hover {
+            color: var(--accent-color);
+            background: rgba(255,102,0,0.1);
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: #aaa;
+        }
+        
+        .activation-input {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: monospace;
+        }
+        
+        .activation-input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6600, #ff8c00);
+            color: black;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: 0.5s;
+        }
+        
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.4);
+        }
+        
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            min-height: 25px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .success {
+            color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .error {
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+        
+        .tool-modal {
+            max-width: 900px;
+            height: 80vh;
+            width: 90%;
+        }
+        
+        .tool-iframe {
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+            border-radius: 0 0 10px 10px;
+            background: #0a0a0a;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--secondary-bg);
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--disabled-color);
+            position: relative;
+            z-index: 2;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 0;
+            }
+            
+            .sidebar::before {
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+                top: auto;
+                bottom: 0;
+            }
+            
+            .sidebar-item {
+                padding: 15px 20px;
+                white-space: nowrap;
+                border-left: none;
+                border-bottom: 4px solid transparent;
+            }
+            
+            .sidebar-item:hover:not(.disabled) {
+                border-left: none;
+                border-bottom: 4px solid var(--accent-color);
+            }
+            
+            .sidebar-item.active {
+                border-left: none;
+                border-bottom: 4px solid var(--accent-color);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .header-controls {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .intro-title {
+                font-size: 2rem;
+            }
+            
+            .logo {
+                font-size: 1.8rem;
+            }
+            
+            .logo::after {
+                font-size: 0.7rem;
+                bottom: -12px;
+            }
+        }
+        
+        /* Glowing effects */
+        .glow {
+            text-shadow: 0 0 10px rgba(255, 102, 0, 0.7);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 102, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 102, 0, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and controls -->
+    <header>
+        <div class="logo">MG MYSTERIOUS</div>
+        <div class="header-controls">
+            <div class="language-selector">
+                <button class="language-btn">
+                    <i class="fas fa-globe"></i> English
+                </button>
+            </div>
+            <button class="activate-btn pulse" id="activateBtn">
+                <i class="fas fa-key"></i> Activate Tools
+            </button>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <a href="#" class="sidebar-item active">
+                <i class="fas fa-info-circle"></i> Introduction
+            </a>
+            <a href="#" class="sidebar-item disabled" id="restaurantTool">
+                <i class="fas fa-utensils"></i> Restaurant Receipt Generator
+            </a>
+            <a href="#" class="sidebar-item disabled" id="supermarketTool">
+                <i class="fas fa-shopping-cart"></i> Supermarket Receipt Generator
+            </a>
+            <a href="#" class="sidebar-item disabled" id="hotelTool">
+                <i class="fas fa-hotel"></i> Hotel Invoice Generator
+            </a>
+            <a href="#" class="sidebar-item disabled" id="vpnTool">
+                <i class="fas fa-shield-alt"></i> VPN Invoice Generator
+            </a>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="intro-container">
+                <h1 class="intro-title">The Mysterious Warehouse of <span class="glow">MG Group</span></h1>
+                
+                <div class="intro-text">
+                    <p>Welcome to the enigmatic digital repository of MG Group, a pioneering force in the realm of specialized IT solutions since our inception in 2015. This virtual warehouse serves as the secure vault for our most exclusive tools and utilities, accessible only to verified partners and clients.</p>
+                    
+                    <p>Within these encrypted walls, we safeguard a collection of proprietary generators designed to meet the unique needs of businesses operating in niche markets. Each tool has been meticulously crafted to deliver precision, reliability, and discretion.</p>
+                    
+                    <p>The Mysterious Warehouse is protected by our proprietary ShadowSync™ encryption protocol, ensuring that only authorized personnel can access its valuable contents. All activities within the warehouse are monitored and recorded to maintain the highest level of security.</p>
+                </div>
+                
+                <div class="history-timeline">
+                    <h2 class="intro-title" style="font-size: 2rem;">MG Group: A Legacy of Innovation</h2>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2015 - Foundation</div>
+                        <p>MG Group was founded by a team of cybersecurity experts and software engineers who recognized the need for specialized IT tools in emerging markets. The company began as a boutique development studio in Singapore.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2017 - First Breakthrough</div>
+                        <p>Launched the revolutionary "StealthLedger" financial documentation system, which quickly became the industry standard for discrete financial operations in Southeast Asia.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2019 - Expansion</div>
+                        <p>Opened regional offices in Zurich, Dubai, and Hong Kong. Developed the proprietary "ShadowSync" encryption protocol that now secures all MG Group products.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2021 - The Warehouse Concept</div>
+                        <p>Introduced the "Mysterious Warehouse" digital platform, providing clients with secure access to specialized tools through a unique authentication system.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2023 - Present</div>
+                        <p>MG Group now serves over 1,200 enterprise clients worldwide with a suite of 17 specialized tools. Our commitment to innovation and security remains the cornerstone of our operations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <p>MG Group &copy; 2015-2023 | All systems secured with ShadowSync™ encryption</p>
+        <p style="margin-top: 8px; font-size: 0.8rem; color: #666;">Access to premium tools requires valid activation</p>
+    </footer>
+    
+    <!-- Activation Modal -->
+    <div class="modal-overlay" id="activationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-lock"></i> Activate Premium Tools</h3>
+                <button class="close-btn" id="closeActivationModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label class="input-label">Enter 16-Digit Activation Code:</label>
+                    <input type="text" class="activation-input" id="activationCode" placeholder="XXXXXXXXXXXXXXXX" maxlength="16">
+                </div>
+                <button class="submit-btn" id="submitActivation">Activate Tools</button>
+                <div class="message" id="activationMessage"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tool Modals -->
+    <div class="modal-overlay" id="toolModal">
+        <div class="modal-content tool-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="toolModalTitle">Tool Preview</h3>
+                <button class="close-btn" id="closeToolModal">&times;</button>
+            </div>
+            <iframe class="tool-iframe" id="toolIframe" src=""></iframe>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const activateBtn = document.getElementById('activateBtn');
+        const activationModal = document.getElementById('activationModal');
+        const closeActivationModal = document.getElementById('closeActivationModal');
+        const activationCodeInput = document.getElementById('activationCode');
+        const submitActivation = document.getElementById('submitActivation');
+        const activationMessage = document.getElementById('activationMessage');
+        
+        const toolModal = document.getElementById('toolModal');
+        const closeToolModal = document.getElementById('closeToolModal');
+        const toolIframe = document.getElementById('toolIframe');
+        const toolModalTitle = document.getElementById('toolModalTitle');
+        
+        // Tool elements
+        const restaurantTool = document.getElementById('restaurantTool');
+        const supermarketTool = document.getElementById('supermarketTool');
+        const hotelTool = document.getElementById('hotelTool');
+        const vpnTool = document.getElementById('vpnTool');
+        
+        // Open activation modal
+        activateBtn.addEventListener('click', () => {
+            activationModal.classList.add('active');
+            activationCodeInput.focus();
+        });
+        
+        // Close activation modal
+        closeActivationModal.addEventListener('click', () => {
+            activationModal.classList.remove('active');
+            activationMessage.textContent = '';
+            activationMessage.className = 'message';
+            activationCodeInput.value = '';
+        });
+        
+        // Close tool modal
+        closeToolModal.addEventListener('click', () => {
+            toolModal.classList.remove('active');
+            toolIframe.src = '';
+        });
+        
+        // Validate activation code
+        submitActivation.addEventListener('click', () => {
+            const code = activationCodeInput.value.trim().toUpperCase();
+            
+            // Special hidden activation code
+            if (code === 'MGJK199304210054') {
+                activateTools();
+                activationMessage.textContent = 'Activation successful! Premium tools unlocked.';
+                activationMessage.className = 'message success';
+                activateBtn.classList.remove('pulse');
+                setTimeout(() => {
+                    activationModal.classList.remove('active');
+                }, 2000);
+                return;
+            }
+            
+            // Regular validation
+            if (code.length !== 16) {
+                activationMessage.textContent = 'Error: Activation code must be 16 characters';
+                activationMessage.className = 'message error';
+                return;
+            }
+            
+            const prefix = code.substring(0, 4);
+            const middle = code.substring(4, 12);
+            const suffix = code.substring(12, 16);
+            
+            const validPrefixes = ['PYMG', 'KKMG', 'DHMG'];
+            const validMiddle = '19951028';
+            
+            if (!validPrefixes.includes(prefix)) {
+                activationMessage.textContent = 'Error: Invalid prefix in activation code';
+                activationMessage.className = 'message error';
+                return;
+            }
+            
+            if (middle !== validMiddle) {
+                activationMessage.textContent = 'Error: Invalid middle section in activation code';
+                activationMessage.className = 'message error';
+                return;
+            }
+            
+            const suffixNumber = parseInt(suffix);
+            if (isNaN(suffixNumber)) {
+                activationMessage.textContent = 'Error: Invalid suffix in activation code';
+                activationMessage.className = 'message error';
+                return;
+            }
+            
+            if (suffixNumber % 13 !== 0) {
+                activationMessage.textContent = 'Error: Suffix must be a multiple of 13';
+                activationMessage.className = 'message error';
+                return;
+            }
+            
+            // If all validations pass
+            activateTools();
+            activationMessage.textContent = 'Activation successful! Premium tools unlocked.';
+            activationMessage.className = 'message success';
+            activateBtn.classList.remove('pulse');
+            
+            setTimeout(() => {
+                activationModal.classList.remove('active');
+                activationMessage.textContent = '';
+                activationMessage.className = 'message';
+                activationCodeInput.value = '';
+            }, 2000);
+        });
+        
+        // Activate tools function
+        function activateTools() {
+            restaurantTool.classList.remove('disabled');
+            restaurantTool.classList.add('enabled');
+            restaurantTool.addEventListener('click', (e) => {
+                e.preventDefault();
+                openTool('A.html', 'Restaurant Receipt Generator');
+            });
+            
+            supermarketTool.classList.remove('disabled');
+            supermarketTool.classList.add('enabled');
+            supermarketTool.addEventListener('click', (e) => {
+                e.preventDefault();
+                openTool('B.html', 'Supermarket Receipt Generator');
+            });
+            
+            hotelTool.classList.remove('disabled');
+            hotelTool.classList.add('enabled');
+            hotelTool.addEventListener('click', (e) => {
+                e.preventDefault();
+                openTool('C.html', 'Hotel Invoice Generator');
+            });
+            
+            vpnTool.classList.remove('disabled');
+            vpnTool.classList.add('enabled');
+            vpnTool.addEventListener('click', (e) => {
+                e.preventDefault();
+                openTool('D.html', 'VPN Invoice Generator');
+            });
+        }
+        
+        // Open tool in modal
+        function openTool(file, title) {
+            toolModalTitle.textContent = title;
+            toolIframe.src = file;
+            toolModal.classList.add('active');
+        }
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === activationModal) {
+                activationModal.classList.remove('active');
+            }
+            if (e.target === toolModal) {
+                toolModal.classList.remove('active');
+                toolIframe.src = '';
+            }
+        });
+        
+        // Sample valid code for testing: PYMG199510280000 (since 0 is multiple of 13)
+        // But note: the hidden code is MGJK199304210054
+    </script>
+</body>
+</html>
