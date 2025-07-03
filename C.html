@@ -3,1119 +3,1066 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indian Hotel Invoice Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>印度酒店发票生成器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: #333;
-            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: var(--dark-color);
             line-height: 1.6;
+            padding: 20px;
             min-height: 100vh;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            display: flex;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
         }
         
-        .header {
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        header {
+            grid-column: 1 / -1;
             text-align: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
+            padding: 25px 0;
+            margin-bottom: 25px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
         
         h1 {
-            color: #2c3e50;
+            color: var(--primary-color);
             margin-bottom: 10px;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
         
-        .description {
-            color: #7f8c8d;
-            max-width: 800px;
+        .subtitle {
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+            max-width: 700px;
             margin: 0 auto;
-            font-size: 1.1rem;
+            line-height: 1.8;
         }
         
-        .form-container {
-            flex: 1;
+        .panel {
             background: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            max-height: 95vh;
-            overflow-y: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
         }
         
-        .preview-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .panel:hover {
+            transform: translateY(-5px);
         }
         
-        .section {
+        .panel-title {
+            font-size: 1.6rem;
+            color: var(--primary-color);
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #ecf0f1;
+            border-bottom: 2px solid #eee;
+            display: flex;
+            align-items: center;
         }
         
-        .section-title {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #3498db;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .panel-title i {
+            margin-right: 10px;
+            color: var(--secondary-color);
         }
         
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-        
-        .checkbox-group {
+            color: var(--dark-color);
             display: flex;
             align-items: center;
-            gap: 10px;
         }
         
-        .checkbox-group input {
-            width: auto;
+        label i {
+            margin-right: 8px;
+            color: var(--secondary-color);
+            width: 20px;
+            text-align: center;
         }
         
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
+        input, select, button {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
         }
         
         button {
-            background-color: #3498db;
+            background-color: var(--secondary-color);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        button i {
+            margin-right: 8px;
         }
         
         button:hover {
             background-color: #2980b9;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         
-        .btn-secondary {
-            background-color: #95a5a6;
+        .btn-generate {
+            background-color: var(--success-color);
         }
         
-        .btn-secondary:hover {
-            background-color: #7f8c8d;
+        .btn-generate:hover {
+            background-color: #219653;
         }
         
-        .btn-success {
-            background-color: #2ecc71;
+        .btn-download {
+            background-color: var(--accent-color);
+            margin-top: 10px;
         }
         
-        .btn-success:hover {
-            background-color: #27ae60;
-        }
-        
-        .btn-danger {
-            background-color: #e74c3c;
-        }
-        
-        .btn-danger:hover {
+        .btn-download:hover {
             background-color: #c0392b;
         }
         
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-group input {
+            flex: 1;
+        }
+        
+        .input-group button {
+            width: auto;
+            min-width: 140px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
         .invoice-preview {
-            width: 210mm;
-            min-height: 297mm;
-            background: white;
-            padding: 20mm;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            min-height: 700px;
             position: relative;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
         }
         
+        .invoice-container {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #eee;
+            padding: 35px;
+            position: relative;
+            flex: 1;
+            background: #fff;
+        }
+        
         .invoice-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #eee;
         }
         
-        .invoice-header h2 {
-            font-size: 28px;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .hotel-name {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-weight: 700;
         }
         
-        .hotel-info {
-            margin-bottom: 5px;
+        .hotel-address {
             color: #7f8c8d;
-        }
-        
-        .guest-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-        
-        .guest-details {
-            width: 60%;
+            margin-bottom: 12px;
+            line-height: 1.6;
         }
         
         .invoice-details {
-            width: 35%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 35px;
+        }
+        
+        .guest-info, .invoice-meta {
+            flex: 1;
         }
         
         .invoice-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-        
-        .invoice-table th, .invoice-table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
+            margin-bottom: 35px;
         }
         
         .invoice-table th {
             background-color: #f8f9fa;
+            padding: 14px;
+            text-align: left;
+            border-bottom: 2px solid #eee;
             font-weight: 600;
+        }
+        
+        .invoice-table td {
+            padding: 14px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .invoice-total {
+            text-align: right;
+            margin-top: 25px;
+            font-size: 1.1rem;
         }
         
         .total-row {
             font-weight: bold;
-            background-color: #f1f8ff;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
         }
         
-        .signature-area {
-            margin-top: auto;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-        }
-        
-        .footer-note {
-            margin-top: 20px;
-            font-style: italic;
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-        
-        .hotel-footer {
-            margin-top: auto;
-            width: 100%;
-            font-size: 12px;
-            color: #7f8c8d;
+        .invoice-footer {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 2px solid #eee;
             text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        
-        .export-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .info-text {
-            font-size: 14px;
             color: #7f8c8d;
-            margin-top: 5px;
-            font-style: italic;
+            line-height: 1.8;
         }
         
-        .weekend-rate-info {
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .iframe-warning {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .download-link {
+            word-break: break-all;
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+            display: none;
+            font-family: monospace;
+        }
+        
+        .style-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .style-box {
+            height: 25px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-top: 5px;
-        }
-        
-        .rate-percentage {
-            background: #e3f2fd;
-            padding: 4px 8px;
-            border-radius: 4px;
+            justify-content: center;
             font-weight: bold;
-            color: #1976d2;
+            font-size: 0.8rem;
         }
         
-        .tax-summary {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-            border: 1px solid #eee;
+        .style-box:hover, .style-box.active {
+            border-color: var(--secondary-color);
+            transform: scale(1.05);
         }
         
-        .tax-summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px dashed #eee;
+        /* Invoice Styles */
+        .style-1 .invoice-header {
+            border-bottom: 3px solid #3498db;
         }
         
-        .tax-summary-row:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
+        .style-2 .invoice-header {
+            border-bottom: 3px double #e74c3c;
         }
         
-        .tax-summary-label {
-            font-weight: 600;
+        .style-3 .invoice-header {
+            border-bottom: 3px dashed #2ecc71;
+        }
+        
+        .style-4 .invoice-header {
+            border-bottom: 3px dotted #9b59b6;
+        }
+        
+        .style-5 .hotel-name {
+            text-decoration: underline;
+            text-decoration-color: #f1c40f;
+        }
+        
+        .style-6 .invoice-table th {
+            background-color: #d5f5e3;
+        }
+        
+        .style-7 .invoice-table {
+            border: 1px solid #ddd;
+        }
+        
+        .style-8 .invoice-footer {
+            font-style: italic;
+        }
+        
+        .style-9 .invoice-container {
+            border: 2px solid #3498db;
+        }
+        
+        .style-10 .invoice-header {
+            text-align: left;
         }
         
         .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #3498db;
-            margin-bottom: 10px;
-        }
-        
-        .preview-controls {
-            display: flex;
-            gap: 10px;
+            text-align: center;
             margin-bottom: 15px;
         }
         
-        .page-number {
-            position: absolute;
-            bottom: 10mm;
-            right: 20mm;
-            font-size: 12px;
-            color: #7f8c8d;
-        }
-        
-        .page-container {
-            position: relative;
-        }
-        
-        @media (max-width: 1200px) {
-            .container {
-                flex-direction: column;
-            }
-            
-            .invoice-preview {
-                width: 100%;
-                min-height: auto;
-            }
+        .logo span {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Indian Hotel Invoice Generator</h1>
-        <p class="description">Fill in the form to generate a professional hotel invoice. Supports PDF and PNG export with authentic Indian hotel details.</p>
-    </div>
-    
     <div class="container">
-        <div class="form-container">
-            <div class="section">
-                <div class="section-title">
-                    <h3>Hotel Information</h3>
-                    <button id="randomHotelBtn" class="btn-secondary">Random</button>
-                </div>
-                
-                <div class="form-group">
-                    <label for="hotelName">Hotel Name</label>
-                    <input type="text" id="hotelName" value="Renaissance Ahmedabad Hotel">
-                </div>
-                
-                <div class="form-group">
-                    <label for="hotelAddress">Hotel Address</label>
-                    <textarea id="hotelAddress" rows="2">Behind Ganesh, Meridian Complex, Sola Road S G Highway Ahmedabad - 380060, India</textarea>
-                    <div class="btn-group">
-                        <button id="randomAddressBtn" class="btn-secondary">Random Address</button>
-                        <button id="hideAddressBtn" class="btn-secondary">Hide Address</button>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="hotelPhone">Hotel Phone</label>
-                    <input type="text" id="hotelPhone" value="+91 79 4000 5000">
-                    <div class="btn-group">
-                        <button id="randomPhoneBtn" class="btn-secondary">Random Phone</button>
-                        <button id="hidePhoneBtn" class="btn-secondary">Hide Phone</button>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="hotelCity">City</label>
-                    <select id="hotelCity">
-                        <option value="Ahmedabad" selected>Ahmedabad</option>
-                        <option value="Pune">Pune</option>
-                        <option value="Mumbai">Mumbai</option>
-                        <option value="Gurgaon">Gurgaon</option>
-                        <option value="New Delhi">New Delhi</option>
-                        <option value="other">Other City</option>
-                    </select>
-                    <div id="otherCityContainer" style="display: none; margin-top: 10px;">
-                        <input type="text" id="otherCity" placeholder="Enter city name">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="taxId">Hotel Tax ID</label>
-                    <div class="btn-group">
-                        <input type="text" id="taxId" value="24AACC06346C222">
-                        <button id="randomTaxBtn" class="btn-secondary">Random</button>
-                    </div>
+        <header>
+            <div class="logo">
+                <span>INVOICE GENERATOR</span>
+            </div>
+            <h1>印度酒店发票生成器</h1>
+            <p class="subtitle">创建专业、可定制的印度酒店发票（全英文） - 支持PDF、PNG和Word格式导出</p>
+        </header>
+        
+        <div class="panel">
+            <h2 class="panel-title"><i class="fas fa-cog"></i> 发票设置</h2>
+            
+            <div class="form-group">
+                <label for="hotelStyle"><i class="fas fa-palette"></i> 发票样式</label>
+                <div class="style-selector">
+                    <div class="style-box active" data-style="1">Style 1</div>
+                    <div class="style-box" data-style="2">Style 2</div>
+                    <div class="style-box" data-style="3">Style 3</div>
+                    <div class="style-box" data-style="4">Style 4</div>
+                    <div class="style-box" data-style="5">Style 5</div>
+                    <div class="style-box" data-style="6">Style 6</div>
+                    <div class="style-box" data-style="7">Style 7</div>
+                    <div class="style-box" data-style="8">Style 8</div>
+                    <div class="style-box" data-style="9">Style 9</div>
+                    <div class="style-box" data-style="10">Style 10</div>
                 </div>
             </div>
             
-            <div class="section">
-                <div class="section-title">
-                    <h3>Guest Information</h3>
-                </div>
-                
-                <div class="form-group">
-                    <label for="guestName">Guest Name</label>
-                    <input type="text" id="guestName" value="Yu Tang Ni">
-                </div>
-                
-                <div class="form-group">
-                    <label for="guestAddress">Guest Address</label>
-                    <textarea id="guestAddress" rows="3">13f.-1 No. 97 Qihe 1st St. Zhongli Taoyuan Taoyuan 320045 China</textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="roomNumber">Room Number</label>
-                    <div class="btn-group">
-                        <input type="text" id="roomNumber" value="1719">
-                        <button id="randomRoomBtn" class="btn-secondary">Random</button>
-                    </div>
+            <div class="form-group">
+                <label for="hotelName"><i class="fas fa-hotel"></i> 酒店名称</label>
+                <div class="input-group">
+                    <input type="text" id="hotelName" placeholder="输入酒店名称">
+                    <button class="btn-generate" id="generateHotel"><i class="fas fa-random"></i> 随机生成</button>
                 </div>
             </div>
             
-            <div class="section">
-                <div class="section-title">
-                    <h3>Stay Information</h3>
-                </div>
-                
-                <div class="form-group">
-                    <label for="arrivalDate">Arrival Date</label>
-                    <input type="date" id="arrivalDate" value="2025-01-10">
-                </div>
-                
-                <div class="form-group">
-                    <label for="nights">Nights</label>
-                    <input type="number" id="nights" min="1" value="4">
-                </div>
-                
-                <div class="form-group">
-                    <label for="departureDate">Departure Date</label>
-                    <input type="date" id="departureDate" value="2025-01-14" readonly>
+            <div class="form-group">
+                <label for="hotelTaxId"><i class="fas fa-file-invoice"></i> 酒店税号</label>
+                <div class="input-group">
+                    <input type="text" id="hotelTaxId" placeholder="输入税号">
+                    <button class="btn-generate" id="generateTaxId"><i class="fas fa-random"></i> 随机生成</button>
                 </div>
             </div>
             
-            <div class="section">
-                <div class="section-title">
-                    <h3>Loyalty & Billing</h3>
-                </div>
-                
-                <div class="form-group">
-                    <label for="loyaltyNumber">Loyalty Number</label>
-                    <div class="btn-group">
-                        <input type="text" id="loyaltyNumber" value="XXXXX5676">
-                        <button id="randomLoyaltyBtn" class="btn-secondary">Random</button>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="invoiceNumber">Invoice Number</label>
-                    <div class="btn-group">
-                        <input type="text" id="invoiceNumber" value="119194">
-                        <button id="randomInvoiceBtn" class="btn-secondary">Random</button>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="cashierName">Cashier Name</label>
-                    <div class="btn-group">
-                        <input type="text" id="cashierName" value="NSHAR155">
-                        <button id="randomCashierBtn" class="btn-secondary">Random</button>
-                    </div>
+            <div class="form-group">
+                <label for="hotelCity"><i class="fas fa-city"></i> 城市</label>
+                <select id="hotelCity">
+                    <option value="">选择城市</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Ahmedabad">Ahmedabad</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Kolkata">Kolkata</option>
+                    <option value="Surat">Surat</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Jaipur">Jaipur</option>
+                    <option value="Lucknow">Lucknow</option>
+                    <option value="Kanpur">Kanpur</option>
+                    <option value="Nagpur">Nagpur</option>
+                    <option value="Visakhapatnam">Visakhapatnam</option>
+                    <option value="Indore">Indore</option>
+                    <option value="Thane">Thane</option>
+                    <option value="Bhopal">Bhopal</option>
+                    <option value="Patna">Patna</option>
+                    <option value="Vadodara">Vadodara</option>
+                    <option value="Ghaziabad">Ghaziabad</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="hotelAddress"><i class="fas fa-map-marker-alt"></i> 酒店地址</label>
+                <input type="text" id="hotelAddress" placeholder="酒店地址将根据城市自动生成">
+            </div>
+            
+            <div class="form-group">
+                <label for="staffName"><i class="fas fa-user-tie"></i> 服务人员姓名</label>
+                <div class="input-group">
+                    <input type="text" id="staffName" placeholder="输入服务人员姓名">
+                    <button class="btn-generate" id="generateStaff"><i class="fas fa-random"></i> 随机生成</button>
                 </div>
             </div>
             
-            <div class="section">
-                <div class="section-title">
-                    <h3>Rate Settings</h3>
-                </div>
-                
-                <div class="form-group">
-                    <label for="weekdayRate">Weekday Rate (₹)</label>
-                    <input type="number" id="weekdayRate" min="0" value="5700">
-                </div>
-                
-                <div class="form-group">
-                    <label for="weekendRate">Weekend Rate (₹)</label>
-                    <input type="number" id="weekendRate" min="0" value="6840" readonly>
-                    <div class="weekend-rate-info">
-                        <span>Weekend rate multiplier:</span>
-                        <span id="weekendRatePercent" class="rate-percentage">120%</span>
-                        <button id="randomRateBtn" class="btn-secondary">Randomize (110-130%)</button>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="taxRate">Tax Rate (%)</label>
-                    <input type="number" id="taxRate" min="0" max="100" step="0.1" value="6">
-                </div>
-                
-                <div class="form-group">
-                    <label for="otherTax">Other Charges (₹)</label>
-                    <input type="number" id="otherTax" min="0" value="0">
-                </div>
-                
-                <div class="form-group">
-                    <label for="prepayment">Prepayment (₹)</label>
-                    <input type="number" id="prepayment" min="0" value="26600">
+            <div class="form-group">
+                <label for="guestName"><i class="fas fa-user"></i> 入住人姓名</label>
+                <div class="input-group">
+                    <input type="text" id="guestName" placeholder="输入入住人姓名">
+                    <button class="btn-generate" id="generateGuest"><i class="fas fa-random"></i> 随机生成</button>
                 </div>
             </div>
             
-            <div class="action-buttons">
-                <button id="generateBtn" class="btn-success">Generate Invoice</button>
-                <button id="resetBtn" class="btn-danger">Reset Form</button>
+            <div class="form-group">
+                <label for="roomNumber"><i class="fas fa-door-open"></i> 房号</label>
+                <div class="input-group">
+                    <input type="text" id="roomNumber" placeholder="输入房号">
+                    <button class="btn-generate" id="generateRoom"><i class="fas fa-random"></i> 随机生成</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="roomRate"><i class="fas fa-money-bill-wave"></i> 每晚房价 (₹)</label>
+                <input type="number" id="roomRate" placeholder="输入每晚房价" min="0" value="4500">
+            </div>
+            
+            <div class="form-group">
+                <label for="checkinDate"><i class="fas fa-calendar-check"></i> 入住日期</label>
+                <input type="date" id="checkinDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="stayDays"><i class="fas fa-moon"></i> 入住天数</label>
+                <input type="number" id="stayDays" placeholder="输入天数" min="1" value="3">
+            </div>
+            
+            <div class="form-group">
+                <label for="advancePayment"><i class="fas fa-credit-card"></i> 预付款金额 (₹)</label>
+                <input type="number" id="advancePayment" placeholder="输入预付款金额" min="0" value="5000">
+            </div>
+            
+            <div class="form-group">
+                <label for="gstRate"><i class="fas fa-percent"></i> GST税率 (%)</label>
+                <input type="number" id="gstRate" placeholder="输入GST税率" min="0" max="100" value="18">
+            </div>
+            
+            <div class="form-group">
+                <label for="currency"><i class="fas fa-coins"></i> 币别</label>
+                <select id="currency">
+                    <option value="₹">印度卢比 (₹)</option>
+                    <option value="$">美元 ($)</option>
+                    <option value="€">欧元 (€)</option>
+                    <option value="£">英镑 (£)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="paymentMethod"><i class="fas fa-wallet"></i> 支付方式</label>
+                <select id="paymentMethod">
+                    <option value="Cash">现金</option>
+                    <option value="Credit Card">信用卡</option>
+                    <option value="Debit Card">借记卡</option>
+                    <option value="Bank Transfer">银行转账</option>
+                    <option value="UPI">UPI</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="cardNumberGroup" style="display: none;">
+                <label for="cardNumber"><i class="fas fa-credit-card"></i> 信用卡尾号</label>
+                <input type="text" id="cardNumber" placeholder="输入信用卡尾号" value="3357">
+            </div>
+            
+            <div class="form-group">
+                <label for="transactionId"><i class="fas fa-receipt"></i> 交易ID</label>
+                <div class="input-group">
+                    <input type="text" id="transactionId" placeholder="输入交易ID">
+                    <button class="btn-generate" id="generateTransaction"><i class="fas fa-random"></i> 随机生成</button>
+                </div>
             </div>
         </div>
         
-        <div class="preview-container">
-            <div class="preview-controls">
-                <button id="exportPdfBtn" class="btn-success">Download PDF</button>
-                <button id="exportPngBtn" class="btn-success">Download PNG</button>
-            </div>
-            
-            <div id="invoicePreview" class="invoice-preview">
+        <div class="invoice-preview">
+            <h2 class="panel-title"><i class="fas fa-eye"></i> 发票预览</h2>
+            <div class="invoice-container" id="invoice">
                 <div class="invoice-header">
-                    <div class="logo">HOTEL INVOICE</div>
-                    <h2 id="previewHotelName">Renaissance Ahmedabad Hotel</h2>
-                    <p id="previewHotelAddress" class="hotel-info">Behind Ganesh, Meridian Complex, Sola Road S G Highway Ahmedabad - 380060, India</p>
-                    <p id="previewHotelPhone" class="hotel-info">Phone: +91 79 4000 5000</p>
-                    <h3>TAX INVOICE</h3>
+                    <div class="hotel-name" id="previewHotelName">Grand Taj Palace</div>
+                    <div class="hotel-address" id="previewHotelAddress">123 Luxury Road, Mumbai, Maharashtra 400001</div>
+                    <div>Tax ID: <span id="previewTaxId">GSTIN98765XYZ</span></div>
                 </div>
                 
-                <div class="guest-info">
-                    <div class="guest-details">
-                        <p><strong>Guest Name:</strong> <span id="previewGuestName">Yu Tang Ni</span></p>
-                        <p><strong>Guest Address:</strong> <span id="previewGuestAddress">13f.-1 No. 97 Qihe 1st St. Zhongli Taoyuan Taoyuan 320045 China</span></p>
+                <div class="invoice-details">
+                    <div class="guest-info">
+                        <div><strong>Guest:</strong> <span id="previewGuestName">Robert Johnson</span></div>
+                        <div><strong>Room No:</strong> <span id="previewRoom">304</span></div>
+                        <div><strong>Check-in:</strong> <span id="previewCheckin">15 Jul 2023</span></div>
+                        <div><strong>Check-out:</strong> <span id="previewCheckout">18 Jul 2023</span></div>
                     </div>
                     
-                    <div class="invoice-details">
-                        <p><strong>Room:</strong> <span id="previewRoom">1719</span></p>
-                        <p><strong>Arrival:</strong> <span id="previewArrival">10-01-25</span></p>
-                        <p><strong>Departure:</strong> <span id="previewDeparture">14-01-25</span></p>
-                        <p><strong>Loyalty No:</strong> <span id="previewLoyalty">XXXXX5676</span></p>
-                        <p><strong>Cashier:</strong> <span id="previewCashier">NSHAR155</span></p>
-                        <p><strong>Invoice No:</strong> <span id="previewInvoiceNo">119194</span></p>
+                    <div class="invoice-meta">
+                        <div><strong>Invoice No:</strong> <span id="previewInvoiceNo">INV-20230715-001</span></div>
+                        <div><strong>Date:</strong> <span id="previewInvoiceDate">18 Jul 2023</span></div>
+                        <div><strong>Staff:</strong> <span id="previewStaff">Amit Sharma</span></div>
                     </div>
                 </div>
                 
                 <table class="invoice-table">
                     <thead>
                         <tr>
-                            <th>Date</th>
                             <th>Description</th>
-                            <th>Charges (₹)</th>
-                            <th>Credits (₹)</th>
+                            <th>Days</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
                         </tr>
                     </thead>
-                    <tbody id="invoiceItems">
-                        <tr>
-                            <td>10-01-25</td>
-                            <td>Accomodation Charges</td>
-                            <td>6,175.00</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>10-01-25</td>
-                            <td>CGST on Room 6%</td>
-                            <td>370.50</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>10-01-25</td>
-                            <td>SGST on Room 6%</td>
-                            <td>370.50</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>10-01-25</td>
-                            <td>Rupay Card Manual</td>
-                            <td></td>
-                            <td>26,600.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <div class="tax-summary" id="taxSummary">
-                    <div class="tax-summary-row">
-                        <span class="tax-summary-label">Total Room Charges:</span>
-                        <span id="previewTotalRoom">₹ 23,750.00</span>
-                    </div>
-                    <div class="tax-summary-row">
-                        <span class="tax-summary-label">Total CGST:</span>
-                        <span id="previewTotalCGST">₹ 1,425.00</span>
-                    </div>
-                    <div class="tax-summary-row">
-                        <span class="tax-summary-label">Total SGST:</span>
-                        <span id="previewTotalSGST">₹ 1,425.00</span>
-                    </div>
-                    <div class="tax-summary-row">
-                        <span class="tax-summary-label">Other Charges:</span>
-                        <span id="previewOtherTax">₹ 0.00</span>
-                    </div>
-                    <div class="tax-summary-row">
-                        <span class="tax-summary-label">Total Charges:</span>
-                        <span id="previewTotalCharges">₹ 26,600.00</span>
-                    </div>
-                </div>
-                
-                <table class="invoice-table">
                     <tbody>
-                        <tr class="total-row">
-                            <td colspan="2">Total</td>
-                            <td id="previewTotalDebit">26,600.00</td>
-                            <td id="previewTotalCredit">26,600.00</td>
+                        <tr>
+                            <td>Deluxe Room Accommodation</td>
+                            <td id="previewDays">3</td>
+                            <td id="previewRate">₹4,500.00</td>
+                            <td id="previewRoomTotal">₹13,500.00</td>
+                        </tr>
+                        <tr>
+                            <td>Restaurant Charges</td>
+                            <td>1</td>
+                            <td>₹2,350.00</td>
+                            <td>₹2,350.00</td>
+                        </tr>
+                        <tr>
+                            <td>Laundry Service</td>
+                            <td>1</td>
+                            <td>₹780.00</td>
+                            <td>₹780.00</td>
                         </tr>
                     </tbody>
                 </table>
                 
-                <div class="signature-area">
-                    <p><strong>Balance: ₹ <span id="previewBalance">0.00</span></strong></p>
-                    <p style="margin-top: 40px;">Guest Signature: _________________________</p>
-                    <p class="footer-note">
-                        This statement is the only receipt. I agree that I am personally liable for the above-mentioned payment and if the person, company or association indicated by me as being responsible for the payment, I understand that my liability shall be joint with such person, company or association if the amount is not received within 30 days.
-                    </p>
+                <div class="invoice-total">
+                    <div class="total-row">Subtotal: <span id="previewSubtotal">₹16,630.00</span></div>
+                    <div>GST (<span id="previewGstRate">18</span>%): <span id="previewGstAmount">₹2,993.40</span></div>
+                    <div class="total-row">Total: <span id="previewTotal">₹19,623.40</span></div>
+                    <div>Advance Paid: <span id="previewAdvance">₹5,000.00</span></div>
+                    <div class="total-row">Amount Due: <span id="previewDue">₹14,623.40</span></div>
                 </div>
                 
-                <div class="hotel-footer">
-                    <p id="previewTaxId">GST No.: 24AACC06346C222</p>
-                    <p>Renaissance Ahmedabad Hotel (A Unit of Caspta Hotels Private Limited)</p>
+                <div class="invoice-footer">
+                    <div>Payment Method: <span id="previewPayment">Credit Card (**** **** **** 3357)</span></div>
+                    <div>Transaction ID: <span id="previewTransaction">TXID9876543210</span></div>
+                    <div>Thank you for your stay. We hope to see you again soon!</div>
                 </div>
-                
-                <div class="page-number" id="pageNumber">Page 1 of 1</div>
             </div>
+            
+            <div class="actions">
+                <button class="btn-download" id="downloadPdf"><i class="fas fa-file-pdf"></i> 下载 PDF</button>
+                <button class="btn-download" id="downloadPng"><i class="fas fa-file-image"></i> 下载 PNG</button>
+                <button class="btn-download" id="downloadWord"><i class="fas fa-file-word"></i> 下载 Word</button>
+            </div>
+            
+            <div class="iframe-warning" id="iframeWarning">
+                检测到您在iframe中浏览。请复制以下链接并在新标签页中打开以下载文件：
+            </div>
+            
+            <div class="download-link" id="downloadLink"></div>
         </div>
     </div>
 
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Indian hotel data
-            const hotelNames = [
-                "Taj Mahal Palace", 
-                "The Oberoi Amarvilas", 
-                "ITC Grand Chola", 
-                "The Leela Palace", 
-                "Rambagh Palace",
-                "Taj Lake Palace",
-                "Wildflower Hall",
-                "The Imperial New Delhi",
-                "Umaid Bhawan Palace",
-                "The St. Regis Mumbai"
-            ];
-            
-            const addresses = {
-                "Pune": [
-                    "Koregaon Park, Pune 411001, Maharashtra",
-                    "Senapati Bapat Road, Pune 411053, Maharashtra",
-                    "Viman Nagar, Pune 411014, Maharashtra"
-                ],
-                "Mumbai": [
-                    "Apollo Bunder, Mumbai 400001, Maharashtra",
-                    "Nariman Point, Mumbai 400021, Maharashtra",
-                    "Bandra Kurla Complex, Mumbai 400051, Maharashtra"
-                ],
-                "Gurgaon": [
-                    "Sector 29, Gurgaon 122001, Haryana",
-                    "MG Road, Gurgaon 122002, Haryana",
-                    "Cyber City, Gurgaon 122008, Haryana"
-                ],
-                "New Delhi": [
-                    "Janpath, New Delhi 110001",
-                    "Sansad Marg, New Delhi 110001",
-                    "Connaught Place, New Delhi 110001"
-                ],
-                "Ahmedabad": [
-                    "Behind Ganesh, Meridian Complex, Sola Road S G Highway Ahmedabad 380060, Gujarat",
-                    "Near Gujarat High Court, S G Highway Ahmedabad 380060, Gujarat",
-                    "Opposite Karnavati Club, S G Highway Ahmedabad 380051, Gujarat"
-                ]
-            };
-            
-            const phonePrefixes = ["+91 11", "+91 22", "+91 33", "+91 44", "+91 79", "+91 80", "+91 124"];
-            
-            // DOM elements
-            const hotelName = document.getElementById('hotelName');
-            const hotelAddress = document.getElementById('hotelAddress');
-            const hotelPhone = document.getElementById('hotelPhone');
-            const hotelCity = document.getElementById('hotelCity');
-            const otherCityContainer = document.getElementById('otherCityContainer');
-            const otherCity = document.getElementById('otherCity');
-            const taxId = document.getElementById('taxId');
-            const guestName = document.getElementById('guestName');
-            const guestAddress = document.getElementById('guestAddress');
-            const roomNumber = document.getElementById('roomNumber');
-            const arrivalDate = document.getElementById('arrivalDate');
-            const nights = document.getElementById('nights');
-            const departureDate = document.getElementById('departureDate');
-            const loyaltyNumber = document.getElementById('loyaltyNumber');
-            const invoiceNumber = document.getElementById('invoiceNumber');
-            const cashierName = document.getElementById('cashierName');
-            const weekdayRate = document.getElementById('weekdayRate');
-            const weekendRate = document.getElementById('weekendRate');
-            const taxRate = document.getElementById('taxRate');
-            const otherTax = document.getElementById('otherTax');
-            const prepayment = document.getElementById('prepayment');
-            const weekendRatePercent = document.getElementById('weekendRatePercent');
-            const pageNumber = document.getElementById('pageNumber');
-            
-            // Preview elements
-            const previewHotelName = document.getElementById('previewHotelName');
-            const previewHotelAddress = document.getElementById('previewHotelAddress');
-            const previewHotelPhone = document.getElementById('previewHotelPhone');
-            const previewGuestName = document.getElementById('previewGuestName');
-            const previewGuestAddress = document.getElementById('previewGuestAddress');
-            const previewRoom = document.getElementById('previewRoom');
-            const previewArrival = document.getElementById('previewArrival');
-            const previewDeparture = document.getElementById('previewDeparture');
-            const previewLoyalty = document.getElementById('previewLoyalty');
-            const previewCashier = document.getElementById('previewCashier');
-            const previewInvoiceNo = document.getElementById('previewInvoiceNo');
-            const previewBalance = document.getElementById('previewBalance');
-            const previewTaxId = document.getElementById('previewTaxId');
-            const invoiceItems = document.getElementById('invoiceItems');
-            const previewTotalRoom = document.getElementById('previewTotalRoom');
-            const previewTotalCGST = document.getElementById('previewTotalCGST');
-            const previewTotalSGST = document.getElementById('previewTotalSGST');
-            const previewOtherTax = document.getElementById('previewOtherTax');
-            const previewTotalCharges = document.getElementById('previewTotalCharges');
-            const previewTotalDebit = document.getElementById('previewTotalDebit');
-            const previewTotalCredit = document.getElementById('previewTotalCredit');
-            
-            // Initialize
-            calculateDepartureDate();
-            updateWeekendRate();
-            
-            // City selection handling
-            hotelCity.addEventListener('change', function() {
-                if (this.value === 'other') {
-                    otherCityContainer.style.display = 'block';
-                } else {
-                    otherCityContainer.style.display = 'none';
-                }
+        // 初始化变量
+        const hotelBrands = [
+            "Taj Hotels", "Oberoi Hotels & Resorts", "ITC Hotels", "Leela Palaces", 
+            "Marriott India", "Hyatt India", "Hilton India", "Radisson India",
+            "Lemon Tree Hotels", "Treebo Hotels", "FabHotels", "OYO Premium",
+            "Sarovar Hotels", "Royal Orchid Hotels", "The Fern Hotels", "Tribute Portfolio",
+            "Alila Hotels", "St. Regis", "Four Seasons", "Ritz-Carlton"
+        ];
+        
+        const staffNames = [
+            "Rajesh Kumar", "Priya Sharma", "Amit Patel", "Deepak Singh", "Sunita Verma",
+            "Vikram Mehta", "Anjali Reddy", "Suresh Nair", "Neha Gupta", "Arun Joshi",
+            "Kavita Mishra", "Rahul Desai", "Pooja Shah", "Sanjay Malhotra", "Meera Iyer"
+        ];
+        
+        const guestNames = [
+            "Robert Johnson", "Emily Chen", "David Williams", "Sarah Brown", "Michael Davis",
+            "Jennifer Wilson", "Christopher Lee", "Jessica Taylor", "Matthew Anderson", "Amanda Thomas",
+            "Daniel Martinez", "Olivia Jackson", "James White", "Sophia Harris", "William Martin"
+        ];
+        
+        // 城市地址映射
+        const cityAddresses = {
+            "Mumbai": "123 Marine Drive, Mumbai, Maharashtra 400001",
+            "Delhi": "45 Connaught Place, New Delhi, Delhi 110001",
+            "Bangalore": "78 MG Road, Bangalore, Karnataka 560001",
+            "Hyderabad": "34 Jubilee Hills, Hyderabad, Telangana 500033",
+            "Ahmedabad": "22 C.G. Road, Ahmedabad, Gujarat 380009",
+            "Chennai": "56 Mount Road, Chennai, Tamil Nadu 600002",
+            "Kolkata": "89 Park Street, Kolkata, West Bengal 700016",
+            "Surat": "12 Ring Road, Surat, Gujarat 395002",
+            "Pune": "67 Fergusson Road, Pune, Maharashtra 411001",
+            "Jaipur": "23 MI Road, Jaipur, Rajasthan 302001",
+            "Lucknow": "11 Hazratganj, Lucknow, Uttar Pradesh 226001",
+            "Kanpur": "88 Mall Road, Kanpur, Uttar Pradesh 208001",
+            "Nagpur": "44 Wardha Road, Nagpur, Maharashtra 440001",
+            "Visakhapatnam": "33 Beach Road, Visakhapatnam, Andhra Pradesh 530001",
+            "Indore": "99 Vijay Nagar, Indore, Madhya Pradesh 452001",
+            "Thane": "55 Ghodbunder Road, Thane, Maharashtra 400601",
+            "Bhopal": "77 Arera Hills, Bhopal, Madhya Pradesh 462001",
+            "Patna": "66 Fraser Road, Patna, Bihar 800001",
+            "Vadodara": "34 R.C. Dutt Road, Vadodara, Gujarat 390001",
+            "Ghaziabad": "88 Raj Nagar, Ghaziabad, Uttar Pradesh 201001"
+        };
+        
+        // 初始化日期
+        document.getElementById('checkinDate').valueAsDate = new Date();
+        
+        // 事件监听器
+        document.getElementById('generateHotel').addEventListener('click', generateRandomHotel);
+        document.getElementById('generateTaxId').addEventListener('click', generateRandomTaxId);
+        document.getElementById('hotelCity').addEventListener('change', updateHotelAddress);
+        document.getElementById('generateStaff').addEventListener('click', generateRandomStaff);
+        document.getElementById('generateGuest').addEventListener('click', generateRandomGuest);
+        document.getElementById('generateRoom').addEventListener('click', generateRandomRoom);
+        document.getElementById('generateTransaction').addEventListener('click', generateRandomTransaction);
+        document.getElementById('paymentMethod').addEventListener('change', toggleCardNumber);
+        document.getElementById('downloadPdf').addEventListener('click', () => downloadInvoice('pdf'));
+        document.getElementById('downloadPng').addEventListener('click', () => downloadInvoice('png'));
+        document.getElementById('downloadWord').addEventListener('click', () => downloadInvoice('word'));
+        
+        // 样式选择器
+        const styleBoxes = document.querySelectorAll('.style-box');
+        styleBoxes.forEach(box => {
+            box.addEventListener('click', () => {
+                styleBoxes.forEach(b => b.classList.remove('active'));
+                box.classList.add('active');
+                const style = box.getAttribute('data-style');
+                document.getElementById('invoice').className = `invoice-container style-${style}`;
             });
-            
-            // Date handling
-            arrivalDate.addEventListener('change', calculateDepartureDate);
-            nights.addEventListener('input', calculateDepartureDate);
-            
-            // Rate handling
-            weekdayRate.addEventListener('input', updateWeekendRate);
-            
-            // Random hotel button
-            document.getElementById('randomHotelBtn').addEventListener('click', function() {
-                const randomName = hotelNames[Math.floor(Math.random() * hotelNames.length)];
-                hotelName.value = randomName;
-                updatePreview();
-            });
-            
-            // Random address button
-            document.getElementById('randomAddressBtn').addEventListener('click', function() {
-                const city = hotelCity.value === 'other' ? otherCity.value : hotelCity.value;
-                const cityAddresses = addresses[city] || [
-                    `${Math.floor(Math.random() * 100) + 1} Main Street, ${city}`,
-                    `${Math.floor(Math.random() * 50) + 1} Park Road, ${city}`,
-                    `Sector ${Math.floor(Math.random() * 50) + 1}, ${city}`
-                ];
-                
-                const randomAddress = cityAddresses[Math.floor(Math.random() * cityAddresses.length)];
-                hotelAddress.value = randomAddress;
-                updatePreview();
-            });
-            
-            // Random phone button
-            document.getElementById('randomPhoneBtn').addEventListener('click', function() {
-                const prefix = phonePrefixes[Math.floor(Math.random() * phonePrefixes.length)];
-                const num = Math.floor(1000000 + Math.random() * 9000000);
-                hotelPhone.value = `${prefix} ${num.toString().substring(0, 4)} ${num.toString().substring(4)}`;
-                updatePreview();
-            });
-            
-            // Hide address button
-            document.getElementById('hideAddressBtn').addEventListener('click', function() {
-                previewHotelAddress.style.display = previewHotelAddress.style.display === 'none' ? 'block' : 'none';
-            });
-            
-            // Hide phone button
-            document.getElementById('hidePhoneBtn').addEventListener('click', function() {
-                previewHotelPhone.style.display = previewHotelPhone.style.display === 'none' ? 'block' : 'none';
-            });
-            
-            // Random tax ID button
-            document.getElementById('randomTaxBtn').addEventListener('click', function() {
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                let result = '';
-                for (let i = 0; i < 15; i++) {
-                    result += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                taxId.value = result;
-                updatePreview();
-            });
-            
-            // Random room number button
-            document.getElementById('randomRoomBtn').addEventListener('click', function() {
-                roomNumber.value = Math.floor(1000 + Math.random() * 9000);
-                updatePreview();
-            });
-            
-            // Random loyalty number button
-            document.getElementById('randomLoyaltyBtn').addEventListener('click', function() {
-                const prefix = 'XXXXX';
-                const suffix = Math.floor(1000 + Math.random() * 9000);
-                loyaltyNumber.value = prefix + suffix;
-                updatePreview();
-            });
-            
-            // Random invoice number button
-            document.getElementById('randomInvoiceBtn').addEventListener('click', function() {
-                invoiceNumber.value = Math.floor(100000 + Math.random() * 900000);
-                updatePreview();
-            });
-            
-            // Random cashier button
-            document.getElementById('randomCashierBtn').addEventListener('click', function() {
-                const names = ['NSHAR155', 'RKUMAR78', 'PPATEL23', 'SMISHRA89', 'RJAIN45', 'VSINGH12', 'MRAO67'];
-                cashierName.value = names[Math.floor(Math.random() * names.length)];
-                updatePreview();
-            });
-            
-            // Random weekend rate button
-            document.getElementById('randomRateBtn').addEventListener('click', function() {
-                // Generate random percentage between 110 and 130
-                const percentage = Math.floor(Math.random() * 21) + 110;
-                const weekday = parseFloat(weekdayRate.value);
-                
-                if (!isNaN(weekday)) {
-                    weekendRate.value = Math.round(weekday * (percentage / 100));
-                    weekendRatePercent.textContent = `${percentage}%`;
-                }
-            });
-            
-            // Generate invoice button
-            document.getElementById('generateBtn').addEventListener('click', generateInvoice);
-            
-            // Reset form button
-            document.getElementById('resetBtn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to reset all form data?')) {
-                    hotelName.value = 'Renaissance Ahmedabad Hotel';
-                    hotelAddress.value = 'Behind Ganesh, Meridian Complex, Sola Road S G Highway Ahmedabad - 380060, India';
-                    hotelPhone.value = '+91 79 4000 5000';
-                    hotelCity.value = 'Ahmedabad';
-                    otherCityContainer.style.display = 'none';
-                    taxId.value = '24AACC06346C222';
-                    guestName.value = 'Yu Tang Ni';
-                    guestAddress.value = '13f.-1 No. 97 Qihe 1st St. Zhongli Taoyuan Taoyuan 320045 China';
-                    roomNumber.value = '1719';
-                    arrivalDate.value = '2025-01-10';
-                    nights.value = '4';
-                    calculateDepartureDate();
-                    loyaltyNumber.value = 'XXXXX5676';
-                    invoiceNumber.value = '119194';
-                    cashierName.value = 'NSHAR155';
-                    weekdayRate.value = '5700';
-                    updateWeekendRate();
-                    taxRate.value = '6';
-                    otherTax.value = '0';
-                    prepayment.value = '26600';
-                    
-                    updatePreview();
-                    generateInvoice();
-                }
-            });
-            
-            // Export PDF button
-            document.getElementById('exportPdfBtn').addEventListener('click', function() {
-                generateInvoice();
-                
-                setTimeout(() => {
-                    const element = document.getElementById('invoicePreview');
-                    
-                    // Create a clone of the element to avoid modifying the original
-                    const clone = element.cloneNode(true);
-                    clone.style.width = '210mm';
-                    clone.style.margin = '0';
-                    clone.style.boxShadow = 'none';
-                    
-                    // Add page numbers to the clone
-                    const pageNum = clone.querySelector('#pageNumber');
-                    if (pageNum) pageNum.textContent = "Page 1 of 1";
-                    
-                    document.body.appendChild(clone);
-                    
-                    // Set options for PDF generation
-                    const opt = {
-                        margin: 10,
-                        filename: 'hotel_invoice.pdf',
-                        image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { 
-                            scale: 2,
-                            backgroundColor: '#FFFFFF',
-                            logging: false,
-                            useCORS: true
-                        },
-                        jsPDF: { 
-                            unit: 'mm', 
-                            format: 'a4', 
-                            orientation: 'portrait',
-                            putOnlyUsedFonts: true
-                        }
-                    };
-                    
-                    // Generate PDF
-                    html2pdf()
-                        .set(opt)
-                        .from(clone)
-                        .save()
-                        .then(() => {
-                            // Remove the clone after PDF generation
-                            document.body.removeChild(clone);
-                        });
-                }, 500);
-            });
-            
-            // Export PNG button
-            document.getElementById('exportPngBtn').addEventListener('click', function() {
-                generateInvoice();
-                
-                setTimeout(() => {
-                    const element = document.getElementById('invoicePreview');
-                    
-                    // Create a clone to remove any box-shadow that might cause issues
-                    const clone = element.cloneNode(true);
-                    clone.style.boxShadow = 'none';
-                    clone.style.position = 'absolute';
-                    clone.style.left = '-9999px';
-                    document.body.appendChild(clone);
-                    
-                    html2canvas(clone, {
-                        scale: 2,
-                        backgroundColor: '#FFFFFF',
-                        logging: false,
-                        useCORS: true
-                    }).then(canvas => {
-                        const link = document.createElement('a');
-                        link.download = 'hotel_invoice.png';
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                        document.body.removeChild(clone);
-                    });
-                }, 500);
-            });
-            
-            // Calculate departure date
-            function calculateDepartureDate() {
-                if (!arrivalDate.value || !nights.value) return;
-                
-                const arrival = new Date(arrivalDate.value);
-                const nightsCount = parseInt(nights.value);
-                
-                if (isNaN(nightsCount) || nightsCount < 1) return;
-                
-                const departure = new Date(arrival);
-                departure.setDate(arrival.getDate() + nightsCount);
-                
-                // Format to YYYY-MM-DD
-                const formattedDate = departure.toISOString().split('T')[0];
-                departureDate.value = formattedDate;
-            }
-            
-            // Update weekend rate
-            function updateWeekendRate() {
-                if (!weekdayRate.value) return;
-                const weekday = parseFloat(weekdayRate.value);
-                if (isNaN(weekday)) return;
-                
-                // Calculate weekend rate based on current multiplier
-                const percentage = parseInt(weekendRatePercent.textContent);
-                const multiplier = isNaN(percentage) ? 1.2 : (percentage / 100);
-                weekendRate.value = Math.round(weekday * multiplier);
-            }
-            
-            // Update preview
-            function updatePreview() {
-                previewHotelName.textContent = hotelName.value;
-                previewHotelAddress.textContent = hotelAddress.value;
-                previewHotelPhone.textContent = `Phone: ${hotelPhone.value}`;
-                previewGuestName.textContent = guestName.value;
-                previewGuestAddress.textContent = guestAddress.value;
-                previewRoom.textContent = roomNumber.value;
-                previewLoyalty.textContent = loyaltyNumber.value;
-                previewCashier.textContent = cashierName.value;
-                previewInvoiceNo.textContent = invoiceNumber.value;
-                previewTaxId.textContent = `GST No.: ${taxId.value}`;
-                
-                // Format dates
-                if (arrivalDate.value) {
-                    const arrival = new Date(arrivalDate.value);
-                    previewArrival.textContent = formatDate(arrival);
-                }
-                
-                if (departureDate.value) {
-                    const departure = new Date(departureDate.value);
-                    previewDeparture.textContent = formatDate(departure);
-                }
-            }
-            
-            // Format date (DD-MM-YY)
-            function formatDate(date) {
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const year = String(date.getFullYear()).substr(-2);
-                return `${day}-${month}-${year}`;
-            }
-            
-            // Generate invoice details
-            function generateInvoice() {
-                updatePreview();
-                
-                const weekday = parseFloat(weekdayRate.value) || 0;
-                const weekend = parseFloat(weekendRate.value) || 0;
-                const tax = parseFloat(taxRate.value) || 0;
-                const other = parseFloat(otherTax.value) || 0;
-                const prepay = parseFloat(prepayment.value) || 0;
-                
-                if (!arrivalDate.value || !nights.value) return;
-                
-                const arrival = new Date(arrivalDate.value);
-                const nightsCount = parseInt(nights.value);
-                
-                if (isNaN(nightsCount) || nightsCount < 1) return;
-                
-                // Clear existing items
-                invoiceItems.innerHTML = '';
-                
-                let totalRoomCharges = 0;
-                let totalCGST = 0;
-                let totalSGST = 0;
-                
-                // Generate daily charges
-                for (let i = 0; i < nightsCount; i++) {
-                    const currentDate = new Date(arrival);
-                    currentDate.setDate(arrival.getDate() + i);
-                    
-                    // Check if weekend (Saturday or Sunday)
-                    const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
-                    const roomCharge = isWeekend ? weekend : weekday;
-                    
-                    // Calculate tax
-                    const taxAmount = roomCharge * (tax / 100);
-                    const cgst = taxAmount / 2;
-                    const sgst = taxAmount / 2;
-                    
-                    totalRoomCharges += roomCharge;
-                    totalCGST += cgst;
-                    totalSGST += sgst;
-                    
-                    // Add room charge row
-                    addInvoiceRow(formatDate(currentDate), 'Accomodation Charges', roomCharge.toFixed(2));
-                    
-                    // Add tax rows
-                    if (tax > 0) {
-                        addInvoiceRow(formatDate(currentDate), `CGST on Room ${tax}%`, cgst.toFixed(2));
-                        addInvoiceRow(formatDate(currentDate), `SGST on Room ${tax}%`, sgst.toFixed(2));
-                    }
-                }
-                
-                // Add prepayment row
-                if (prepay > 0) {
-                    addInvoiceRow(formatDate(arrival), 'Advance Payment', '', prepay.toFixed(2));
-                }
-                
-                // Update tax summary
-                const totalCharges = totalRoomCharges + totalCGST + totalSGST + other;
-                const balance = totalCharges - prepay;
-                
-                previewTotalRoom.textContent = `₹ ${totalRoomCharges.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-                previewTotalCGST.textContent = `₹ ${totalCGST.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-                previewTotalSGST.textContent = `₹ ${totalSGST.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-                previewOtherTax.textContent = `₹ ${other.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-                previewTotalCharges.textContent = `₹ ${totalCharges.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-                previewTotalDebit.textContent = totalCharges.toLocaleString('en-IN', {minimumFractionDigits: 2});
-                previewTotalCredit.textContent = prepay.toLocaleString('en-IN', {minimumFractionDigits: 2});
-                previewBalance.textContent = balance.toLocaleString('en-IN', {minimumFractionDigits: 2});
-                
-                // Update page number
-                pageNumber.textContent = "Page 1 of 1";
-            }
-            
-            // Add invoice row
-            function addInvoiceRow(date, description, charge = '', credit = '') {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${date}</td>
-                    <td>${description}</td>
-                    <td>${charge ? parseFloat(charge).toLocaleString('en-IN', {minimumFractionDigits: 2}) : ''}</td>
-                    <td>${credit ? parseFloat(credit).toLocaleString('en-IN', {minimumFractionDigits: 2}) : ''}</td>
-                `;
-                invoiceItems.appendChild(row);
-            }
-            
-            // Initial invoice generation
-            generateInvoice();
         });
+        
+        // 表单输入事件
+        const inputFields = [
+            'hotelName', 'hotelTaxId', 'hotelCity', 'hotelAddress', 'staffName', 
+            'guestName', 'roomNumber', 'roomRate', 'checkinDate', 'stayDays', 
+            'advancePayment', 'gstRate', 'currency', 'paymentMethod', 'cardNumber', 'transactionId'
+        ];
+        
+        inputFields.forEach(field => {
+            document.getElementById(field).addEventListener('input', updateInvoicePreview);
+        });
+        
+        // 初始化预览
+        generateRandomHotel();
+        generateRandomTaxId();
+        updateHotelAddress();
+        generateRandomStaff();
+        generateRandomGuest();
+        generateRandomRoom();
+        generateRandomTransaction();
+        updateInvoicePreview();
+        
+        // 函数定义
+        function generateRandomHotel() {
+            const randomIndex = Math.floor(Math.random() * hotelBrands.length);
+            document.getElementById('hotelName').value = hotelBrands[randomIndex];
+            updateInvoicePreview();
+        }
+        
+        function generateRandomTaxId() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let taxId = 'GSTIN';
+            
+            for (let i = 0; i < 6; i++) {
+                taxId += Math.floor(Math.random() * 10);
+            }
+            
+            for (let i = 0; i < 3; i++) {
+                taxId += letters.charAt(Math.floor(Math.random() * letters.length));
+            }
+            
+            document.getElementById('hotelTaxId').value = taxId;
+            updateInvoicePreview();
+        }
+        
+        function updateHotelAddress() {
+            const city = document.getElementById('hotelCity').value;
+            if (city && cityAddresses[city]) {
+                document.getElementById('hotelAddress').value = cityAddresses[city];
+                updateInvoicePreview();
+            }
+        }
+        
+        function generateRandomStaff() {
+            const randomIndex = Math.floor(Math.random() * staffNames.length);
+            document.getElementById('staffName').value = staffNames[randomIndex];
+            updateInvoicePreview();
+        }
+        
+        function generateRandomGuest() {
+            const randomIndex = Math.floor(Math.random() * guestNames.length);
+            document.getElementById('guestName').value = guestNames[randomIndex];
+            updateInvoicePreview();
+        }
+        
+        function generateRandomRoom() {
+            const floor = Math.floor(Math.random() * 10) + 1;
+            const room = Math.floor(Math.random() * 30) + 1;
+            document.getElementById('roomNumber').value = `${floor}${room < 10 ? '0' : ''}${room}`;
+            updateInvoicePreview();
+        }
+        
+        function generateRandomTransaction() {
+            let transactionId = 'TXID';
+            for (let i = 0; i < 10; i++) {
+                transactionId += Math.floor(Math.random() * 10);
+            }
+            document.getElementById('transactionId').value = transactionId;
+            updateInvoicePreview();
+        }
+        
+        function toggleCardNumber() {
+            const method = document.getElementById('paymentMethod').value;
+            const cardGroup = document.getElementById('cardNumberGroup');
+            cardGroup.style.display = method === 'Credit Card' ? 'block' : 'none';
+            updateInvoicePreview();
+        }
+        
+        function formatCurrency(amount, currency) {
+            return currency + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
+        function updateInvoicePreview() {
+            // 获取表单值
+            const hotelName = document.getElementById('hotelName').value || 'Grand Taj Palace';
+            const hotelAddress = document.getElementById('hotelAddress').value || '123 Luxury Road, Mumbai, Maharashtra 400001';
+            const taxId = document.getElementById('hotelTaxId').value || 'GSTIN98765XYZ';
+            const staffName = document.getElementById('staffName').value || 'Amit Sharma';
+            const guestName = document.getElementById('guestName').value || 'Robert Johnson';
+            const roomNumber = document.getElementById('roomNumber').value || '304';
+            const roomRate = parseFloat(document.getElementById('roomRate').value) || 4500;
+            const advancePayment = parseFloat(document.getElementById('advancePayment').value) || 5000;
+            const gstRate = parseFloat(document.getElementById('gstRate').value) || 18;
+            const currency = document.getElementById('currency').value || '₹';
+            const checkinDate = document.getElementById('checkinDate').value;
+            const stayDays = parseInt(document.getElementById('stayDays').value) || 3;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const cardNumber = document.getElementById('cardNumber').value || '3357';
+            const transactionId = document.getElementById('transactionId').value || 'TXID9876543210';
+            
+            // 计算日期
+            let checkoutDate = '';
+            let invoiceDate = '';
+            
+            if (checkinDate) {
+                const checkin = new Date(checkinDate);
+                const checkout = new Date(checkin);
+                checkout.setDate(checkout.getDate() + stayDays);
+                checkoutDate = formatDate(checkout);
+                
+                // 发票日期为退房日期
+                invoiceDate = checkoutDate;
+            }
+            
+            // 计算金额
+            const roomTotal = roomRate * stayDays;
+            const restaurantCharges = 2350;
+            const laundryCharges = 780;
+            const subtotal = roomTotal + restaurantCharges + laundryCharges;
+            const gstAmount = subtotal * (gstRate / 100);
+            const total = subtotal + gstAmount;
+            const due = total - advancePayment;
+            
+            // 更新预览
+            document.getElementById('previewHotelName').textContent = hotelName;
+            document.getElementById('previewHotelAddress').textContent = hotelAddress;
+            document.getElementById('previewTaxId').textContent = taxId;
+            document.getElementById('previewGuestName').textContent = guestName;
+            document.getElementById('previewRoom').textContent = roomNumber;
+            document.getElementById('previewCheckin').textContent = formatDate(checkinDate) || '15 Jul 2023';
+            document.getElementById('previewCheckout').textContent = checkoutDate || '18 Jul 2023';
+            document.getElementById('previewStaff').textContent = staffName;
+            document.getElementById('previewInvoiceDate').textContent = invoiceDate || '18 Jul 2023';
+            
+            document.getElementById('previewDays').textContent = stayDays;
+            document.getElementById('previewRate').textContent = formatCurrency(roomRate, currency);
+            document.getElementById('previewRoomTotal').textContent = formatCurrency(roomTotal, currency);
+            document.getElementById('previewSubtotal').textContent = formatCurrency(subtotal, currency);
+            document.getElementById('previewGstRate').textContent = gstRate;
+            document.getElementById('previewGstAmount').textContent = formatCurrency(gstAmount, currency);
+            document.getElementById('previewTotal').textContent = formatCurrency(total, currency);
+            document.getElementById('previewAdvance').textContent = formatCurrency(advancePayment, currency);
+            document.getElementById('previewDue').textContent = formatCurrency(due, currency);
+            
+            // 生成发票号
+            const today = new Date();
+            const invoiceNo = `INV-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3, '0')}`;
+            document.getElementById('previewInvoiceNo').textContent = invoiceNo;
+            
+            // 更新支付方式
+            const paymentDisplay = paymentMethod === 'Credit Card' 
+                ? `Credit Card (**** **** **** ${cardNumber})` 
+                : paymentMethod;
+            document.getElementById('previewPayment').textContent = paymentDisplay;
+            
+            document.getElementById('previewTransaction').textContent = transactionId;
+        }
+        
+        function downloadInvoice(format) {
+            const invoiceElement = document.getElementById('invoice');
+            const hotelName = document.getElementById('hotelName').value || 'HotelInvoice';
+            const fileName = `${hotelName.replace(/\s+/g, '_')}_Invoice_${new Date().toISOString().slice(0, 10)}`;
+            
+            // 检查是否在iframe中
+            const isInIframe = window.self !== window.top;
+            
+            if (isInIframe) {
+                // 在iframe中，显示链接
+                const iframeWarning = document.getElementById('iframeWarning');
+                const downloadLink = document.getElementById('downloadLink');
+                
+                // 生成唯一的下载标识符
+                const downloadId = `dl_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+                
+                // 存储数据在本地（简化处理）
+                localStorage.setItem(downloadId, JSON.stringify({
+                    format: format,
+                    fileName: fileName,
+                    html: invoiceElement.innerHTML
+                }));
+                
+                // 创建下载链接
+                const downloadUrl = `${window.location.href.split('?')[0]}?download=${downloadId}`;
+                downloadLink.textContent = downloadUrl;
+                downloadLink.style.display = 'block';
+                iframeWarning.style.display = 'block';
+                
+                return;
+            }
+            
+            // 不在iframe中，直接下载
+            if (format === 'pdf') {
+                generatePDF(invoiceElement, fileName);
+            } else if (format === 'png') {
+                generatePNG(invoiceElement, fileName);
+            } else if (format === 'word') {
+                generateWord(invoiceElement, fileName);
+            }
+        }
+        
+        function generatePDF(element, fileName) {
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 295; // A4 height in mm
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save(`${fileName}.pdf`);
+            }).catch(error => {
+                console.error('Error generating PDF:', error);
+                alert('生成PDF时出错，请重试');
+            });
+        }
+        
+        function generatePNG(element, fileName) {
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                canvas.toBlob(function(blob) {
+                    saveAs(blob, `${fileName}.png`);
+                });
+            }).catch(error => {
+                console.error('Error generating PNG:', error);
+                alert('生成PNG时出错，请重试');
+            });
+        }
+        
+        function generateWord(element, fileName) {
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${fileName}</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 1.5cm;
+                        }
+                        .invoice-container { 
+                            width: 100%; 
+                            max-width: 21cm;
+                            margin: 0 auto;
+                        }
+                        .invoice-header {
+                            text-align: center;
+                            margin-bottom: 35px;
+                            padding-bottom: 25px;
+                            border-bottom: 2px solid #eee;
+                        }
+                        .hotel-name {
+                            font-size: 24pt;
+                            font-weight: bold;
+                            margin-bottom: 10px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 30px;
+                        }
+                        th, td {
+                            padding: 10px;
+                            border: 1px solid #ddd;
+                        }
+                        th {
+                            background-color: #f5f5f5;
+                        }
+                        .invoice-total {
+                            text-align: right;
+                            margin-top: 30px;
+                            font-size: 12pt;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${element.innerHTML}
+                </body>
+                </html>
+            `;
+            
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.download = `${fileName}.doc`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+        }
+        
+        // 检查URL参数，处理下载请求
+        function checkDownloadRequest() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const downloadId = urlParams.get('download');
+            
+            if (downloadId) {
+                const downloadData = JSON.parse(localStorage.getItem(downloadId) || '{}');
+                localStorage.removeItem(downloadId);
+                
+                const element = document.createElement('div');
+                element.innerHTML = downloadData.html || '<div>Error: Invoice content not found</div>';
+                
+                if (downloadData.format === 'pdf') {
+                    generatePDF(element, downloadData.fileName);
+                } else if (downloadData.format === 'png') {
+                    generatePNG(element, downloadData.fileName);
+                } else if (downloadData.format === 'word') {
+                    generateWord(element, downloadData.fileName);
+                }
+                
+                // 关闭窗口
+                setTimeout(() => {
+                    window.close();
+                }, 3000);
+            }
+        }
+        
+        // 初始化检查下载请求
+        window.onload = checkDownloadRequest;
     </script>
 </body>
 </html>
