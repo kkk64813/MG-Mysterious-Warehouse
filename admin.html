@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>激活码管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00c9ff, #92fe9d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        header p {
+            color: #aaa;
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: rgba(30, 40, 60, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            color: #4fc3f7;
+        }
+        
+        .card h2 i {
+            margin-right: 12px;
+            background: linear-gradient(45deg, #2196f3, #21cbf3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .admin-code {
+            font-size: 1.8rem;
+            text-align: center;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            margin: 30px 0;
+            font-weight: bold;
+            letter-spacing: 2px;
+            border: 2px dashed #4caf50;
+            color: #4caf50;
+        }
+        
+        .admin-code span {
+            display: block;
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 10px;
+            letter-spacing: normal;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #2196f3, #21cbf3);
+            color: white;
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+            font-weight: 600;
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.6);
+        }
+        
+        .btn i {
+            margin-right: 10px;
+        }
+        
+        .test-codes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .code-item {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            flex-grow: 1;
+            text-align: center;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .code-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+        }
+        
+        .info-text {
+            color: #bbb;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .info-text i {
+            color: #4caf50;
+            margin-right: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #aaa;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .admin-code {
+                font-size: 1.4rem;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-key"></i> 激活码管理系统</h1>
+            <p>管理员控制面板 - 用于生成、管理和监控系统激活码</p>
+        </header>
+        
+        <div class="dashboard">
+            <!-- 激活码生成器区块 -->
+            <div class="card">
+                <h2><i class="fas fa-barcode"></i> 激活码生成器</h2>
+                <p>点击下方按钮打开激活码生成工具，创建新的激活码</p>
+                <a href="ActivationCode.html" class="btn" id="generator-btn">
+                    <i class="fas fa-cogs"></i> 打开激活码生成器
+                </a>
+                <div class="info-text">
+                    <p><i class="fas fa-info-circle"></i> 生成器将创建符合系统安全标准的激活码，包含数字和大写字母组合</p>
+                </div>
+            </div>
+            
+            <!-- 测试用激活码区块 -->
+            <div class="card">
+                <h2><i class="fas fa-vial"></i> 测试用激活码</h2>
+                <p>以下是为测试环境准备的激活码：</p>
+                <div class="test-codes">
+                    <div class="code-item">TEST-5F7G-9H2J-K8M3</div>
+                    <div class="code-item">TEST-B3N5-M8P2-Q6Z9</div>
+                    <div class="code-item">TEST-R4T6-Y1U7-I0O9</div>
+                    <div class="code-item">TEST-X2C4-V6B8-N9M1</div>
+                    <div class="code-item">TEST-L3K9-J7H1-G5F4</div>
+                    <div class="code-item">TEST-D2S8-A4Q6-W7E3</div>
+                </div>
+                <div class="info-text">
+                    <p><i class="fas fa-info-circle"></i> 这些激活码仅用于测试环境，有效期为30天</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 管理员激活码区块 -->
+        <div class="card">
+            <h2><i class="fas fa-user-shield"></i> 管理员激活码</h2>
+            <p>系统管理员专属激活码，拥有最高权限：</p>
+            <div class="admin-code">
+                <span>管理员激活码</span>
+                MGJKH199304210054888
+            </div>
+            <div class="info-text">
+                <p><i class="fas fa-exclamation-triangle"></i> 此激活码具有系统最高权限，请妥善保管，勿泄露给他人</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 激活码管理系统 | 管理员控制面板 v2.1.5 | 最后更新: 2023-10-15</p>
+        </footer>
+    </div>
+
+    <script>
+        // 添加按钮点击效果
+        document.getElementById('generator-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // 添加点击反馈
+            this.classList.add('clicked');
+            
+            // 模拟加载效果
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在打开生成器...';
+            
+            setTimeout(() => {
+                // 恢复原始文本
+                this.innerHTML = originalText;
+                
+                // 实际打开页面
+                window.location.href = 'ActivationCode.html';
+            }, 800);
+        });
+    </script>
+</body>
+</html>
