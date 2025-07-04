@@ -13,481 +13,464 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        :root {
-            --primary-bg: #0a0a0a;
-            --secondary-bg: #121212;
-            --accent-color: #ff6600;
-            --text-color: #f0f0f0;
-            --disabled-color: #444;
-            --card-bg: #1a1a1a;
-            --border-color: #333;
-        }
-        
         body {
-            background-color: var(--primary-bg);
-            color: var(--text-color);
+            background-color: #000;
+            color: #fff;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            overflow-x: hidden;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(255, 102, 0, 0.05) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(255, 102, 0, 0.05) 0%, transparent 20%);
+            position: relative;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="100" fill="none" stroke="%23ff6600" stroke-width="0.5" opacity="0.2"/></svg>');
+            z-index: -1;
         }
         
         .container {
             display: flex;
-            flex: 1;
-        }
-        
-        /* Header Styles */
-        header {
-            background-color: var(--secondary-bg);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--accent-color);
-            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.1);
-            position: relative;
-            z-index: 10;
-        }
-        
-        .logo {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--accent-color);
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255, 102, 0, 0.4);
-            position: relative;
-        }
-        
-        .logo::after {
-            content: 'WAREHOUSE';
-            position: absolute;
-            bottom: -15px;
-            left: 0;
-            font-size: 0.8rem;
-            color: #888;
-            letter-spacing: 4px;
-        }
-        
-        .header-controls {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        
-        .language-selector {
-            position: relative;
-        }
-        
-        .language-btn {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .language-btn:hover {
-            border-color: var(--accent-color);
-        }
-        
-        .activate-btn {
-            background: linear-gradient(135deg, #ff6600, #ff8c00);
-            color: black;
-            font-weight: bold;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .activate-btn::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to right,
-                rgba(255,255,255,0) 0%,
-                rgba(255,255,255,0.3) 50%,
-                rgba(255,255,255,0) 100%
-            );
-            transform: rotate(30deg);
-            transition: all 0.6s;
-        }
-        
-        .activate-btn:hover::before {
-            left: 100%;
-        }
-        
-        .activate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255, 102, 0, 0.5);
+            min-height: 100vh;
         }
         
         /* Sidebar Styles */
         .sidebar {
             width: 280px;
-            background-color: var(--secondary-bg);
-            padding: 20px 0;
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
+            background: rgba(20, 20, 20, 0.9);
+            border-right: 1px solid #ff6600;
+            padding: 20px;
+            overflow-y: auto;
             position: relative;
-            z-index: 5;
+            z-index: 10;
+            box-shadow: 5px 0 15px rgba(255, 102, 0, 0.2);
         }
         
-        .sidebar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 2px;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent, var(--accent-color), transparent);
-            opacity: 0.3;
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ff6600;
         }
         
-        .sidebar-item {
-            padding: 18px 30px;
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 1.1rem;
+        .logo h1 {
+            font-size: 28px;
+            color: #ff6600;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(255, 102, 0, 0.7);
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            font-size: 12px;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+        
+        .intro {
+            background: rgba(40, 40, 40, 0.7);
+            border: 1px solid #ff6600;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ddd;
+        }
+        
+        .intro h2 {
+            color: #ff6600;
+            margin-bottom: 10px;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        .menu {
+            margin-top: 20px;
+        }
+        
+        .menu h3 {
+            color: #ff6600;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        
+        .menu-item {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 15px;
-            transition: all 0.3s ease;
-            border-left: 4px solid transparent;
+            color: #aaa;
             position: relative;
         }
         
-        .sidebar-item:hover:not(.disabled) {
-            background-color: var(--card-bg);
-            border-left: 4px solid var(--accent-color);
+        .menu-item i {
+            margin-right: 10px;
+            color: #ff6600;
+            width: 20px;
+            text-align: center;
         }
         
-        .sidebar-item.active {
-            background-color: var(--card-bg);
-            border-left: 4px solid var(--accent-color);
-            color: var(--accent-color);
-        }
-        
-        .disabled {
-            color: var(--disabled-color);
+        .menu-item.disabled {
+            opacity: 0.5;
             cursor: not-allowed;
-            pointer-events: none;
         }
         
-        .enabled {
-            color: var(--accent-color);
-            cursor: pointer;
+        .menu-item.active {
+            background: rgba(255, 102, 0, 0.2);
+            border-color: #ff6600;
+            color: #fff;
         }
         
-        .enabled:hover {
-            color: #ff8c00;
+        .menu-item.active:hover {
+            background: rgba(255, 102, 0, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .level-badge {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: #ff6600;
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 10px;
+        }
+        
+        .admin-badge {
+            background: #ffcc00;
+            color: #000;
         }
         
         /* Main Content Styles */
         .main-content {
             flex: 1;
-            padding: 30px;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
-            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
             position: relative;
         }
         
-        .intro-container {
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .intro-title {
-            font-size: 2.5rem;
-            color: var(--accent-color);
-            margin-bottom: 25px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            position: relative;
-            padding-bottom: 15px;
-        }
-        
-        .intro-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 4px;
-            background: var(--accent-color);
-            border-radius: 2px;
-        }
-        
-        .intro-text {
-            font-size: 1.15rem;
-            line-height: 1.8;
+        .header {
+            display: flex;
+            justify-content: flex-end;
             margin-bottom: 30px;
-            text-align: justify;
-            position: relative;
         }
         
-        .intro-text::first-letter {
-            font-size: 3rem;
-            color: var(--accent-color);
-            float: left;
-            line-height: 0.8;
-            margin-right: 8px;
-        }
-        
-        .history-timeline {
-            margin-top: 40px;
-        }
-        
-        .timeline-item {
-            position: relative;
-            padding: 20px 0 20px 40px;
-            border-left: 3px solid var(--accent-color);
-            margin-bottom: 20px;
-        }
-        
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -10px;
-            top: 24px;
-            width: 16px;
-            height: 16px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
-        }
-        
-        .timeline-year {
-            color: var(--accent-color);
+        .activate-btn {
+            background: linear-gradient(to right, #ff6600, #ff8c00);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
             font-weight: bold;
-            font-size: 1.3rem;
-            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.5);
+            transition: all 0.3s ease;
+            z-index: 110;
+            position: relative;
+        }
+        
+        .activate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 102, 0, 0.7);
+        }
+        
+        /* 修正状态栏位置 - 移动到页面中间 */
+        .status-bar {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid #ff6600;
+            border-radius: 8px;
+            padding: 15px;
+            width: 300px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+        
+        .status-bar.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-50%) translateX(20px); }
+            to { opacity: 1; transform: translateY(-50%) translateX(0); }
+        }
+        
+        .status-title {
+            color: #ff6600;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .status-value {
+            color: #ff6600;
+            font-weight: bold;
+        }
+        
+        .admin-value {
+            color: #ffcc00;
+        }
+        
+        .countdown {
+            font-size: 22px;
+            text-align: center;
+            margin: 15px 0;
+            color: #ff6600;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+        
+        .dashboard {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .dashboard h2 {
+            font-size: 36px;
+            color: #ff6600;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
+        }
+        
+        .dashboard p {
+            font-size: 18px;
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #ddd;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .feature-card {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            border-color: #ff6600;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .feature-card i {
+            font-size: 40px;
+            color: #ff6600;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .feature-card p {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 0;
         }
         
         /* Modal Styles */
-        .modal-overlay {
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
             z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            align-items: center;
+            justify-content: center;
         }
         
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
+        .modal.active {
+            display: flex;
         }
         
         .modal-content {
-            background-color: var(--secondary-bg);
+            background: rgba(20, 20, 20, 0.95);
+            border: 2px solid #ff6600;
             border-radius: 10px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 0 30px rgba(255, 102, 0, 0.3);
-            transform: scale(0.8);
-            transition: transform 0.3s ease;
-            border: 1px solid var(--accent-color);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
-        }
-        
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(26, 26, 26, 0.8);
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(255, 102, 0, 0.5);
         }
         
         .modal-title {
-            color: var(--accent-color);
-            font-size: 1.4rem;
-            letter-spacing: 1px;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        
-        .close-btn:hover {
-            color: var(--accent-color);
-            background: rgba(255,102,0,0.1);
-        }
-        
-        .modal-body {
-            padding: 30px;
+            color: #ff6600;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
         }
         
         .input-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         
-        .input-label {
+        .input-group label {
             display: block;
             margin-bottom: 8px;
-            font-size: 0.95rem;
-            color: #aaa;
+            color: #ddd;
         }
         
-        .activation-input {
+        .input-group input {
             width: 100%;
-            padding: 14px;
-            background-color: var(--card-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-color);
-            font-size: 1.1rem;
+            padding: 12px;
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
             letter-spacing: 1px;
-            text-transform: uppercase;
-            font-family: monospace;
+            text-align: center;
+            font-family: 'Courier New', monospace;
         }
         
-        .activation-input:focus {
-            border-color: var(--accent-color);
+        .input-group input:focus {
+            border-color: #ff6600;
             outline: none;
-            box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
         }
         
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #ff6600, #ff8c00);
-            color: black;
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 5px;
+            border: none;
             font-weight: bold;
-            border: none;
-            border-radius: 6px;
             cursor: pointer;
-            font-size: 1.1rem;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
         }
         
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
+        .btn-primary {
+            background: linear-gradient(to right, #ff6600, #ff8c00);
+            color: #000;
         }
         
-        .submit-btn:hover::before {
-            left: 100%;
+        .btn-secondary {
+            background: rgba(60, 60, 60, 0.8);
+            color: #ddd;
         }
         
-        .submit-btn:hover {
+        .btn:hover {
+            opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.4);
         }
         
-        .message {
-            text-align: center;
+        .validation-result {
             margin-top: 20px;
-            font-size: 1.1rem;
-            min-height: 25px;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        
-        .success {
-            color: #4caf50;
-            background: rgba(76, 175, 80, 0.1);
-            border: 1px solid rgba(76, 175, 80, 0.3);
-        }
-        
-        .error {
-            color: #f44336;
-            background: rgba(244, 67, 54, 0.1);
-            border: 1px solid rgba(244, 67, 54, 0.3);
-        }
-        
-        .tool-modal {
-            max-width: 900px;
-            height: 80vh;
-            width: 90%;
-        }
-        
-        .tool-iframe {
-            width: 100%;
-            height: calc(100% - 60px);
-            border: none;
-            border-radius: 0 0 10px 10px;
-            background: #0a0a0a;
-        }
-        
-        /* Footer */
-        footer {
-            background-color: var(--secondary-bg);
-            padding: 20px;
+            padding: 15px;
+            border-radius: 5px;
             text-align: center;
-            border-top: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            color: var(--disabled-color);
-            position: relative;
-            z-index: 2;
+            font-weight: bold;
+            display: none;
         }
         
-        footer::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+        .validation-result.valid {
+            display: block;
+            background: rgba(0, 128, 0, 0.2);
+            border: 1px solid #0f0;
+            color: #0f0;
         }
         
-        /* Responsive Design */
-        @media (max-width: 900px) {
+        .validation-result.invalid {
+            display: block;
+            background: rgba(128, 0, 0, 0.2);
+            border: 1px solid #f00;
+            color: #f00;
+        }
+        
+        .time-display {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 6px;
+            color: #1e90ff;
+            font-family: 'Courier New', monospace;
+            z-index: 50;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .status-bar {
+                width: 280px;
+                padding: 12px;
+            }
+            
+            .countdown {
+                font-size: 20px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .status-bar {
+                width: 260px;
+                right: 10px;
+            }
+        }
+        
+        @media (max-width: 768px) {
             .container {
                 flex-direction: column;
             }
@@ -495,363 +478,598 @@
             .sidebar {
                 width: 100%;
                 border-right: none;
-                border-bottom: 1px solid var(--border-color);
-                flex-direction: row;
-                overflow-x: auto;
-                padding: 0;
+                border-bottom: 1px solid #ff6600;
+                max-height: 50vh;
             }
             
-            .sidebar::before {
-                width: 100%;
-                height: 2px;
-                background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            .status-bar {
+                position: fixed;
                 top: auto;
-                bottom: 0;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: calc(100% - 40px);
+                max-width: 500px;
             }
             
-            .sidebar-item {
-                padding: 15px 20px;
-                white-space: nowrap;
-                border-left: none;
-                border-bottom: 4px solid transparent;
-            }
-            
-            .sidebar-item:hover:not(.disabled) {
-                border-left: none;
-                border-bottom: 4px solid var(--accent-color);
-            }
-            
-            .sidebar-item.active {
-                border-left: none;
-                border-bottom: 4px solid var(--accent-color);
+            .features {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             }
         }
         
-        @media (max-width: 600px) {
-            header {
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .modal-buttons {
                 flex-direction: column;
-                gap: 15px;
+            }
+            
+            .feature-card {
                 padding: 15px;
             }
             
-            .header-controls {
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
+            .dashboard h2 {
+                font-size: 28px;
             }
             
-            .intro-title {
-                font-size: 2rem;
+            .status-bar {
+                padding: 10px;
             }
             
-            .logo {
-                font-size: 1.8rem;
-            }
-            
-            .logo::after {
-                font-size: 0.7rem;
-                bottom: -12px;
-            }
-        }
-        
-        /* Glowing effects */
-        .glow {
-            text-shadow: 0 0 10px rgba(255, 102, 0, 0.7);
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 102, 0, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 102, 0, 0);
+            .countdown {
+                font-size: 18px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header with logo and controls -->
-    <header>
-        <div class="logo">MG MYSTERIOUS</div>
-        <div class="header-controls">
-            <div class="language-selector">
-                <button class="language-btn">
-                    <i class="fas fa-globe"></i> English
-                </button>
-            </div>
-            <button class="activate-btn pulse" id="activateBtn">
-                <i class="fas fa-key"></i> Activate Tools
-            </button>
-        </div>
-    </header>
+    <!-- Time Display -->
+    <div class="time-display" id="timeDisplay">2025-07-04 10:30:45 GMT+8</div>
     
     <div class="container">
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar -->
         <div class="sidebar">
-            <a href="#" class="sidebar-item active">
-                <i class="fas fa-info-circle"></i> Introduction
-            </a>
-            <a href="#" class="sidebar-item disabled" id="restaurantTool">
-                <i class="fas fa-utensils"></i> Restaurant Receipt Generator
-            </a>
-            <a href="#" class="sidebar-item disabled" id="supermarketTool">
-                <i class="fas fa-shopping-cart"></i> Supermarket Receipt Generator
-            </a>
-            <a href="#" class="sidebar-item disabled" id="hotelTool">
-                <i class="fas fa-hotel"></i> Hotel Invoice Generator
-            </a>
-            <a href="#" class="sidebar-item disabled" id="vpnTool">
-                <i class="fas fa-shield-alt"></i> VPN Invoice Generator
-            </a>
+            <div class="logo">
+                <h1>MG Mysterious Warehouse</h1>
+                <p>Exclusive Tools & Services</p>
+            </div>
+            
+            <div class="intro">
+                <h2>About MG Group</h2>
+                <p>Founded in Singapore in 2024, MG Group has rapidly emerged as a leader in providing innovative online tools and services. Our journey began with a vision to simplify everyday tasks through technology.</p>
+                <p>Over the past year, we've expanded our offerings to include both physical and virtual solutions, serving clients in over 30 countries. Our commitment to excellence and innovation has earned us numerous industry accolades.</p>
+                <p>Today, MG Group stands at the forefront of digital transformation, empowering businesses and individuals with cutting-edge tools designed for the modern world.</p>
+            </div>
+            
+            <div class="menu">
+                <h3>Tools & Services</h3>
+                <div class="menu-item disabled" id="restaurantTool">
+                    <i class="fas fa-utensils"></i> Restaurant Receipt Generator
+                    <span class="level-badge">Level 1+</span>
+                </div>
+                <div class="menu-item disabled" id="supermarketTool">
+                    <i class="fas fa-shopping-cart"></i> Supermarket Receipt Generator
+                    <span class="level-badge">Level 1+</span>
+                </div>
+                <div class="menu-item disabled" id="hotelTool">
+                    <i class="fas fa-hotel"></i> Hotel Invoice Generator
+                    <span class="level-badge">Level 1+</span>
+                </div>
+                <div class="menu-item disabled" id="vpnTool">
+                    <i class="fas fa-shield-alt"></i> VPN Invoice Generator
+                    <span class="level-badge">Level 1+</span>
+                </div>
+                
+                <h3 style="margin-top: 25px;">Member Areas</h3>
+                <div class="menu-item disabled" id="memberArea1">
+                    <i class="fas fa-lock"></i> Member Area 1
+                    <span class="level-badge">Level 2+</span>
+                </div>
+                <div class="menu-item disabled" id="memberArea2">
+                    <i class="fas fa-lock"></i> Member Area 2
+                    <span class="level-badge">Level 3+</span>
+                </div>
+                <div class="menu-item disabled" id="memberArea3">
+                    <i class="fas fa-lock"></i> Member Area 3
+                    <span class="level-badge">Level 4+</span>
+                </div>
+                
+                <h3 style="margin-top: 25px;">Admin Area</h3>
+                <div class="menu-item disabled" id="adminArea">
+                    <i class="fas fa-crown"></i> Admin Area
+                    <span class="level-badge admin-badge">Admin</span>
+                </div>
+            </div>
         </div>
         
-        <!-- Main Content Area -->
+        <!-- Main Content -->
         <div class="main-content">
-            <div class="intro-container">
-                <h1 class="intro-title">The Mysterious Warehouse of <span class="glow">MG Group</span></h1>
-                
-                <div class="intro-text">
-                    <p>Welcome to the enigmatic digital repository of MG Group, a pioneering force in the realm of specialized IT solutions since our inception in 2015. This virtual warehouse serves as the secure vault for our most exclusive tools and utilities, accessible only to verified partners and clients.</p>
-                    
-                    <p>Within these encrypted walls, we safeguard a collection of proprietary generators designed to meet the unique needs of businesses operating in niche markets. Each tool has been meticulously crafted to deliver precision, reliability, and discretion.</p>
-                    
-                    <p>The Mysterious Warehouse is protected by our proprietary ShadowSync™ encryption protocol, ensuring that only authorized personnel can access its valuable contents. All activities within the warehouse are monitored and recorded to maintain the highest level of security.</p>
+            <div class="header">
+                <button class="activate-btn" id="activateBtn">
+                    <i class="fas fa-key"></i> Activate Membership
+                </button>
+            </div>
+            
+            <!-- 状态栏现在固定在右侧中间位置 -->
+            <div class="status-bar" id="statusBar">
+                <h3 class="status-title">PREMIUM MEMBERSHIP</h3>
+                <div class="status-item">
+                    <span>Status:</span>
+                    <span class="status-value" id="statusValue">Active</span>
                 </div>
+                <div class="status-item">
+                    <span>Membership Level:</span>
+                    <span class="status-value" id="memberLevel">5</span>
+                </div>
+                <div class="status-item">
+                    <span>Expiration:</span>
+                    <span class="status-value" id="expirationDate">2050-12-31 23:59</span>
+                </div>
+                <div class="countdown" id="countdown">25y 180d 13h 28m 15s</div>
+                <div class="status-item">
+                    <span>Access Level:</span>
+                    <span class="status-value" id="accessLevel">All Tools & Areas</span>
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <h2>MG Mysterious Warehouse</h2>
+                <p>Welcome to the exclusive members-only platform of MG Group. Unlock powerful tools and services by activating your premium membership.</p>
                 
-                <div class="history-timeline">
-                    <h2 class="intro-title" style="font-size: 2rem;">MG Group: A Legacy of Innovation</h2>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-year">2015 - Foundation</div>
-                        <p>MG Group was founded by a team of cybersecurity experts and software engineers who recognized the need for specialized IT tools in emerging markets. The company began as a boutique development studio in Singapore.</p>
+                <div class="features">
+                    <div class="feature-card">
+                        <i class="fas fa-receipt"></i>
+                        <h3>Receipt Generators</h3>
+                        <p>Professional receipt creation for various business needs</p>
                     </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-year">2017 - First Breakthrough</div>
-                        <p>Launched the revolutionary "StealthLedger" financial documentation system, which quickly became the industry standard for discrete financial operations in Southeast Asia.</p>
+                    <div class="feature-card">
+                        <i class="fas fa-user-shield"></i>
+                        <h3>Secure VPN</h3>
+                        <p>Private and secure internet access worldwide</p>
                     </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-year">2019 - Expansion</div>
-                        <p>Opened regional offices in Zurich, Dubai, and Hong Kong. Developed the proprietary "ShadowSync" encryption protocol that now secures all MG Group products.</p>
+                    <div class="feature-card">
+                        <i class="fas fa-tools"></i>
+                        <h3>Business Tools</h3>
+                        <p>Specialized utilities for enterprise solutions</p>
                     </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-year">2021 - The Warehouse Concept</div>
-                        <p>Introduced the "Mysterious Warehouse" digital platform, providing clients with secure access to specialized tools through a unique authentication system.</p>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-year">2023 - Present</div>
-                        <p>MG Group now serves over 1,200 enterprise clients worldwide with a suite of 17 specialized tools. Our commitment to innovation and security remains the cornerstone of our operations.</p>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Analytics</h3>
+                        <p>Advanced data analysis and reporting</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Footer -->
-    <footer>
-        <p>MG Group &copy; 2015-2023 | All systems secured with ShadowSync™ encryption</p>
-        <p style="margin-top: 8px; font-size: 0.8rem; color: #666;">Access to premium tools requires valid activation</p>
-    </footer>
     
     <!-- Activation Modal -->
-    <div class="modal-overlay" id="activationModal">
+    <div class="modal" id="activationModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title"><i class="fas fa-lock"></i> Activate Premium Tools</h3>
-                <button class="close-btn" id="closeActivationModal">&times;</button>
+            <h2 class="modal-title"><i class="fas fa-key"></i> Membership Activation</h2>
+            <div class="input-group">
+                <label for="activationCode">Enter Activation Code (20 characters)</label>
+                <input type="text" id="activationCode" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" maxlength="20">
             </div>
-            <div class="modal-body">
-                <div class="input-group">
-                    <label class="input-label">Enter 16-Digit Activation Code:</label>
-                    <input type="text" class="activation-input" id="activationCode" placeholder="XXXXXXXXXXXXXXXX" maxlength="16">
-                </div>
-                <button class="submit-btn" id="submitActivation">Activate Tools</button>
-                <div class="message" id="activationMessage"></div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="validateBtn">Validate Code</button>
+                <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
             </div>
-        </div>
-    </div>
-    
-    <!-- Tool Modals -->
-    <div class="modal-overlay" id="toolModal">
-        <div class="modal-content tool-modal">
-            <div class="modal-header">
-                <h3 class="modal-title" id="toolModalTitle">Tool Preview</h3>
-                <button class="close-btn" id="closeToolModal">&times;</button>
+            
+            <div class="validation-result" id="validationResult">
+                <!-- Validation message will appear here -->
             </div>
-            <iframe class="tool-iframe" id="toolIframe" src=""></iframe>
         </div>
     </div>
     
     <script>
-        // DOM Elements
+        // 存储会员状态
+        let membership = {
+            active: false,
+            level: 0,
+            expiration: null,
+            isAdmin: false
+        };
+        
+        // 更新工具按钮状态
+        function updateToolStatus() {
+            const tools = ['restaurantTool', 'supermarketTool', 'hotelTool', 'vpnTool'];
+            const memberAreas = ['memberArea1', 'memberArea2', 'memberArea3'];
+            const adminArea = document.getElementById('adminArea');
+            
+            // 更新基础工具状态
+            tools.forEach(toolId => {
+                const tool = document.getElementById(toolId);
+                if (membership.active) {
+                    tool.classList.remove('disabled');
+                    tool.classList.add('active');
+                } else {
+                    tool.classList.remove('active');
+                    tool.classList.add('disabled');
+                }
+            });
+            
+            // 更新会员专区状态
+            memberAreas.forEach((areaId, index) => {
+                const area = document.getElementById(areaId);
+                if (membership.active && membership.level >= index + 2) {
+                    area.classList.remove('disabled');
+                    area.classList.add('active');
+                } else {
+                    area.classList.remove('active');
+                    area.classList.add('disabled');
+                }
+            });
+            
+            // 更新管理员专区状态
+            if (membership.active && membership.isAdmin) {
+                adminArea.classList.remove('disabled');
+                adminArea.classList.add('active');
+                document.getElementById('statusValue').textContent = "Admin Active";
+                document.getElementById('statusValue').className = "status-value admin-value";
+            } else {
+                adminArea.classList.remove('active');
+                adminArea.classList.add('disabled');
+                document.getElementById('statusValue').textContent = "Active";
+                document.getElementById('statusValue').className = "status-value";
+            }
+            
+            // 更新访问级别显示
+            let accessLevel = "No Access";
+            if (membership.active) {
+                if (membership.isAdmin) {
+                    accessLevel = "All Tools & Admin Area";
+                } else if (membership.level >= 4) {
+                    accessLevel = "All Tools & Areas";
+                } else if (membership.level >= 3) {
+                    accessLevel = "Tools & Areas 1-2";
+                } else if (membership.level >= 2) {
+                    accessLevel = "Tools & Area 1";
+                } else {
+                    accessLevel = "Basic Tools Only";
+                }
+            }
+            document.getElementById('accessLevel').textContent = accessLevel;
+        }
+        
+        // Update time display
+        function updateTime() {
+            const now = new Date();
+            // Adjust for GMT+8
+            const gmt8Offset = 8 * 60; // minutes
+            const localOffset = now.getTimezoneOffset(); // in minutes
+            const gmt8Time = new Date(now.getTime() + (localOffset + gmt8Offset) * 60 * 1000);
+            
+            const timeString = gmt8Time.toISOString().replace('T', ' ').replace(/\.\d+Z/, '') + ' GMT+8';
+            document.getElementById('timeDisplay').textContent = timeString;
+            
+            // 检查会员状态是否过期
+            if (membership.active && membership.expiration < now) {
+                membership.active = false;
+                membership.isAdmin = false;
+                document.getElementById('statusBar').classList.remove('active');
+                updateToolStatus();
+            }
+        }
+        
+        // Initial time update
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Modal functionality
         const activateBtn = document.getElementById('activateBtn');
         const activationModal = document.getElementById('activationModal');
-        const closeActivationModal = document.getElementById('closeActivationModal');
-        const activationCodeInput = document.getElementById('activationCode');
-        const submitActivation = document.getElementById('submitActivation');
-        const activationMessage = document.getElementById('activationMessage');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const validateBtn = document.getElementById('validateBtn');
+        const activationCode = document.getElementById('activationCode');
+        const validationResult = document.getElementById('validationResult');
         
-        const toolModal = document.getElementById('toolModal');
-        const closeToolModal = document.getElementById('closeToolModal');
-        const toolIframe = document.getElementById('toolIframe');
-        const toolModalTitle = document.getElementById('toolModalTitle');
-        
-        // Tool elements
-        const restaurantTool = document.getElementById('restaurantTool');
-        const supermarketTool = document.getElementById('supermarketTool');
-        const hotelTool = document.getElementById('hotelTool');
-        const vpnTool = document.getElementById('vpnTool');
-        
-        // Open activation modal
         activateBtn.addEventListener('click', () => {
             activationModal.classList.add('active');
-            activationCodeInput.focus();
+            activationCode.value = '';
+            validationResult.className = 'validation-result';
+            validationResult.textContent = '';
         });
         
-        // Close activation modal
-        closeActivationModal.addEventListener('click', () => {
+        cancelBtn.addEventListener('click', () => {
             activationModal.classList.remove('active');
-            activationMessage.textContent = '';
-            activationMessage.className = 'message';
-            activationCodeInput.value = '';
         });
         
-        // Close tool modal
-        closeToolModal.addEventListener('click', () => {
-            toolModal.classList.remove('active');
-            toolIframe.src = '';
-        });
-        
-        // Validate activation code
-        submitActivation.addEventListener('click', () => {
-            const code = activationCodeInput.value.trim().toUpperCase();
+        // Activation code validation logic
+        function validateActivationCode(code) {
+            // Remove non-alphanumeric characters and convert to uppercase
+            const cleanCode = code.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
             
-            // Special hidden activation code
-            if (code === 'MGJK199304210054') {
-                activateTools();
-                activationMessage.textContent = 'Activation successful! Premium tools unlocked.';
-                activationMessage.className = 'message success';
-                activateBtn.classList.remove('pulse');
+            // Test code for admin access
+            if (cleanCode === 'MGJKH199304210054888') {
+                return {
+                    valid: true,
+                    isAdmin: true,
+                    type: 'Y',
+                    level: 9,
+                    startDate: new Date('2025-01-01T00:00:00+08:00'),
+                    endDate: new Date('2050-12-31T23:59:59+08:00'),
+                    duration: 25
+                };
+            }
+            
+            // Validate length
+            if (cleanCode.length !== 20) {
+                return {
+                    valid: false,
+                    message: 'Invalid activation code'
+                };
+            }
+            
+            // Split into four groups of 5 characters
+            const groups = [
+                cleanCode.substring(0, 5),
+                cleanCode.substring(5, 10),
+                cleanCode.substring(10, 15),
+                cleanCode.substring(15, 20)
+            ];
+            
+            // Extract parts
+            const typeChar = groups[0].charAt(0);
+            const yearDigits = groups[0].substring(1, 5);
+            const monthDayDigits = groups[1].substring(1, 5);
+            const timeDigits = groups[2].substring(1, 5);
+            const levelDigit = groups[3].charAt(1);
+            const durationDigits = groups[3].substring(2, 4);
+            const checksumDigit = groups[3].charAt(4);
+            
+            // Validate type character
+            if (!['Y', 'M', 'D', 'H'].includes(typeChar)) {
+                return {
+                    valid: false,
+                    message: 'Invalid activation code'
+                };
+            }
+            
+            // Decode digits using non-borrowing subtraction
+            function decodeDigits(encoded, base) {
+                let result = '';
+                for (let i = 0; i < 4; i++) {
+                    let e = parseInt(encoded[i]);
+                    let b = parseInt(base[i]);
+                    let d = e - b;
+                    if (d < 0) d += 10;
+                    result += d.toString();
+                }
+                return result;
+            }
+            
+            // Decode values
+            const startYear = decodeDigits(yearDigits, "1995");
+            const startMonthDay = decodeDigits(monthDayDigits, "1028");
+            const startTime = decodeDigits(timeDigits, "0421");
+            
+            // Parse date components
+            const year = parseInt(startYear);
+            const month = parseInt(startMonthDay.substring(0, 2)) - 1; // JS months are 0-indexed
+            const day = parseInt(startMonthDay.substring(2, 4));
+            const hours = parseInt(startTime.substring(0, 2));
+            const minutes = parseInt(startTime.substring(2, 4));
+            
+            // Create date object for GMT+8
+            const startDate = new Date(Date.UTC(year, month, day, hours, minutes, 0, 0) - (8 * 60 * 60 * 1000));
+            
+            // Validate date range (2025-2050)
+            if (year < 2025 || year > 2050) {
+                return {
+                    valid: false,
+                    message: 'Invalid activation code'
+                };
+            }
+            
+            // Validate date components
+            if (isNaN(startDate.getTime())) {
+                return {
+                    valid: false,
+                    message: 'Invalid activation code'
+                };
+            }
+            
+            // Validate time
+            if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+                return {
+                    valid: false,
+                    message: 'Invalid activation code'
+                };
+            }
+            
+            // Calculate end date based on type and duration
+            const duration = parseInt(durationDigits);
+            const endDate = new Date(startDate);
+            
+            switch (typeChar) {
+                case 'Y':
+                    endDate.setFullYear(endDate.getFullYear() + duration);
+                    break;
+                case 'M':
+                    endDate.setMonth(endDate.getMonth() + duration);
+                    break;
+                case 'D':
+                    endDate.setDate(endDate.getDate() + duration);
+                    break;
+                case 'H':
+                    endDate.setHours(endDate.getHours() + duration);
+                    break;
+            }
+            
+            // 校验码验证逻辑：使用前15位数字
+            // 提取激活码中的前15个数字字符
+            const allDigits = cleanCode.match(/\d/g) || [];
+            
+            if (allDigits.length < 15) {
+                return {
+                    valid: false,
+                    message: 'Invalid activation code'
+                };
+            }
+            
+            // 取前15个数字字符
+            const first15Digits = allDigits.slice(0, 15);
+            
+            // 计算前15位数字的和
+            let checksumSum = 0;
+            first15Digits.forEach(digit => {
+                checksumSum += parseInt(digit);
+            });
+            
+            // 计算校验值 (mod 7)
+            const calculatedChecksum = checksumSum % 7;
+            
+            // 获取激活码最后一位（第20位）
+            const actualChecksum = parseInt(cleanCode.charAt(19));
+            
+            // 验证校验码
+            if (actualChecksum !== calculatedChecksum) {
+                return {
+                    valid: false,
+                    message: 'Invalid activation code'
+                };
+            }
+            
+            // Check if end date is in the future
+            const now = new Date();
+            if (endDate < now) {
+                return {
+                    valid: false,
+                    message: 'Activation code expired'
+                };
+            }
+            
+            // All validations passed
+            return {
+                valid: true,
+                isAdmin: false,
+                type: typeChar,
+                level: parseInt(levelDigit),
+                startDate: startDate,
+                endDate: endDate,
+                duration: duration
+            };
+        }
+        
+        // Validate button click handler
+        validateBtn.addEventListener('click', () => {
+            const code = activationCode.value.trim();
+            
+            // Validate activation code
+            const result = validateActivationCode(code);
+            
+            if (result.valid) {
+                validationResult.textContent = 'Activation successful! Premium membership activated.';
+                validationResult.className = 'validation-result valid';
+                
+                // 更新会员状态
+                membership.active = true;
+                membership.level = result.level;
+                membership.expiration = result.endDate;
+                membership.isAdmin = result.isAdmin || false;
+                
+                // Enable tools after successful activation
                 setTimeout(() => {
                     activationModal.classList.remove('active');
-                }, 2000);
-                return;
-            }
-            
-            // Regular validation
-            if (code.length !== 16) {
-                activationMessage.textContent = 'Error: Activation code must be 16 characters';
-                activationMessage.className = 'message error';
-                return;
-            }
-            
-            const prefix = code.substring(0, 4);
-            const middle = code.substring(4, 12);
-            const suffix = code.substring(12, 16);
-            
-            const validPrefixes = ['PYMG', 'KKMG', 'DHMG'];
-            const validMiddle = '19951028';
-            
-            if (!validPrefixes.includes(prefix)) {
-                activationMessage.textContent = 'Error: Invalid prefix in activation code';
-                activationMessage.className = 'message error';
-                return;
-            }
-            
-            if (middle !== validMiddle) {
-                activationMessage.textContent = 'Error: Invalid middle section in activation code';
-                activationMessage.className = 'message error';
-                return;
-            }
-            
-            const suffixNumber = parseInt(suffix);
-            if (isNaN(suffixNumber)) {
-                activationMessage.textContent = 'Error: Invalid suffix in activation code';
-                activationMessage.className = 'message error';
-                return;
-            }
-            
-            if (suffixNumber % 13 !== 0) {
-                activationMessage.textContent = 'Error: Suffix must be a multiple of 13';
-                activationMessage.className = 'message error';
-                return;
-            }
-            
-            // If all validations pass
-            activateTools();
-            activationMessage.textContent = 'Activation successful! Premium tools unlocked.';
-            activationMessage.className = 'message success';
-            activateBtn.classList.remove('pulse');
-            
-            setTimeout(() => {
-                activationModal.classList.remove('active');
-                activationMessage.textContent = '';
-                activationMessage.className = 'message';
-                activationCodeInput.value = '';
-            }, 2000);
-        });
-        
-        // Activate tools function
-        function activateTools() {
-            restaurantTool.classList.remove('disabled');
-            restaurantTool.classList.add('enabled');
-            restaurantTool.addEventListener('click', (e) => {
-                e.preventDefault();
-                openTool('A.html', 'Restaurant Receipt Generator');
-            });
-            
-            supermarketTool.classList.remove('disabled');
-            supermarketTool.classList.add('enabled');
-            supermarketTool.addEventListener('click', (e) => {
-                e.preventDefault();
-                openTool('B.html', 'Supermarket Receipt Generator');
-            });
-            
-            hotelTool.classList.remove('disabled');
-            hotelTool.classList.add('enabled');
-            hotelTool.addEventListener('click', (e) => {
-                e.preventDefault();
-                openTool('C.html', 'Hotel Invoice Generator');
-            });
-            
-            vpnTool.classList.remove('disabled');
-            vpnTool.classList.add('enabled');
-            vpnTool.addEventListener('click', (e) => {
-                e.preventDefault();
-                openTool('D.html', 'VPN Invoice Generator');
-            });
-        }
-        
-        // Open tool in modal
-        function openTool(file, title) {
-            toolModalTitle.textContent = title;
-            toolIframe.src = file;
-            toolModal.classList.add('active');
-        }
-        
-        // Close modals when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === activationModal) {
-                activationModal.classList.remove('active');
-            }
-            if (e.target === toolModal) {
-                toolModal.classList.remove('active');
-                toolIframe.src = '';
+                    document.getElementById('statusBar').classList.add('active');
+                    
+                    // 更新工具状态
+                    updateToolStatus();
+                    
+                    // Set membership level in status bar
+                    document.getElementById('memberLevel').textContent = result.level;
+                    
+                    // Set expiration date
+                    const expDate = result.endDate.toISOString().split('T')[0] + ' ' + 
+                                    result.endDate.toTimeString().split(' ')[0].substring(0, 5);
+                    document.getElementById('expirationDate').textContent = expDate;
+                    
+                    // Start countdown
+                    startCountdown(result.endDate);
+                }, 3000);
+            } else {
+                validationResult.textContent = result.message;
+                validationResult.className = 'validation-result invalid';
             }
         });
         
-        // Sample valid code for testing: PYMG199510280000 (since 0 is multiple of 13)
-        // But note: the hidden code is MGJK199304210054
+        // Countdown timer
+        function startCountdown(targetDate) {
+            function updateCountdown() {
+                const now = new Date();
+                const diff = targetDate - now;
+                
+                if (diff > 0) {
+                    const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+                    const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    document.getElementById('countdown').textContent = 
+                        `${years}y ${days}d ${hours}h ${minutes}m ${seconds}s`;
+                } else {
+                    document.getElementById('countdown').textContent = 'Membership expired';
+                    // 会员过期，禁用所有工具
+                    membership.active = false;
+                    membership.isAdmin = false;
+                    updateToolStatus();
+                }
+            }
+            
+            // Initialize countdown
+            updateCountdown();
+            const countdownInterval = setInterval(updateCountdown, 1000);
+        }
+        
+        // Tool button functionality
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (this.classList.contains('disabled')) return;
+                
+                let url;
+                switch(this.id) {
+                    case 'restaurantTool':
+                        url = 'A.html';
+                        break;
+                    case 'supermarketTool':
+                        url = 'B.html';
+                        break;
+                    case 'hotelTool':
+                        url = 'C.html';
+                        break;
+                    case 'vpnTool':
+                        url = 'D.html';
+                        break;
+                    case 'memberArea1':
+                        url = 'M1.html';
+                        break;
+                    case 'memberArea2':
+                        url = 'M2.html';
+                        break;
+                    case 'memberArea3':
+                        url = 'M3.html';
+                        break;
+                    case 'adminArea':
+                        url = 'Admin.html';
+                        break;
+                    default:
+                        return;
+                }
+                
+                // 在新窗口打开工具页面
+                window.open(url, '_blank', 'width=800,height=600');
+            });
+        });
+        
+        // Initialize with test code for demo
+        window.onload = () => {
+            activationCode.value = 'MGJKH199304210054888';
+        };
     </script>
 </body>
 </html>
