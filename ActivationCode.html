@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>激活码生成器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, #1a2a6c, #3a4a9c);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .form-group h3 {
+            color: #1a2a6c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e5ff;
+        }
+        
+        .input-row {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3a4a9c;
+            box-shadow: 0 0 0 3px rgba(58, 74, 156, 0.2);
+        }
+        
+        .duration-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .duration-container select {
+            flex: 1;
+        }
+        
+        .duration-value {
+            font-weight: bold;
+            font-size: 1.2rem;
+            min-width: 40px;
+            text-align: center;
+            color: #1a2a6c;
+            background: #e0e5ff;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        
+        .btn-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            color: white;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .result-container {
+            background: #f0f5ff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+            border: 2px solid #d0d9ff;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .result-header h3 {
+            color: #1a2a6c;
+            font-size: 1.5rem;
+        }
+        
+        .activation-code {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(to right, #2a3a9c, #1a2a6c);
+            color: white;
+            border-radius: 10px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .activation-code::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            100% {
+                left: 100%;
+            }
+        }
+        
+        .code-groups {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .code-group {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto 20px;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #3a4a9c;
+        }
+        
+        .info-card h4 {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        
+        .info-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1a2a6c;
+        }
+        
+        .explanation {
+            margin-top: 30px;
+            padding: 25px;
+            background: #e8f4ff;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            border: 1px dashed #3a4a9c;
+        }
+        
+        .explanation h3 {
+            color: #1a2a6c;
+            margin-bottom: 15px;
+        }
+        
+        .rules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .rule-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .rule-item h4 {
+            color: #1a2a6c;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            background: #f8f9ff;
+            border-top: 1px solid #e0e5ff;
+        }
+        
+        @media (max-width: 768px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .activation-code {
+                font-size: 1.3rem;
+                letter-spacing: 2px;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>高级激活码生成器</h1>
+            <p class="subtitle">安全生成带校验功能的20位激活码</p>
+        </header>
+        
+        <div class="content">
+            <div class="form-container">
+                <div class="form-group">
+                    <h3>有效期设置</h3>
+                    <div class="input-row">
+                        <label for="date-input">开始日期 (YYYYMMDD)：</label>
+                        <input type="date" id="date-input">
+                    </div>
+                    <div class="input-row">
+                        <label for="time-input">开始时间 (HHmm)：</label>
+                        <input type="time" id="time-input">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <h3>会员有效期</h3>
+                    <div class="input-row">
+                        <label>年度会员：</label>
+                        <div class="duration-container">
+                            <select id="year-duration">
+                                <option value="">请选择</option>
+                                <option value="1">一年</option>
+                                <option value="2">两年</option>
+                            </select>
+                            <div class="duration-value" id="year-value">00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-row">
+                        <label>月度会员：</label>
+                        <div class="duration-container">
+                            <select id="month-duration">
+                                <option value="">请选择</option>
+                                <option value="1">1个月</option>
+                                <option value="2">2个月</option>
+                                <option value="3">3个月</option>
+                                <option value="4">4个月</option>
+                                <option value="5">5个月</option>
+                                <option value="6">6个月</option>
+                                <option value="7">7个月</option>
+                                <option value="8">8个月</option>
+                                <option value="9">9个月</option>
+                                <option value="10">10个月</option>
+                                <option value="11">11个月</option>
+                                <option value="12">12个月</option>
+                            </select>
+                            <div class="duration-value" id="month-value">00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-row">
+                        <label>单日会员：</label>
+                        <div class="duration-container">
+                            <select id="day-duration">
+                                <option value="">请选择</option>
+                                <option value="1">1日</option>
+                                <option value="2">2日</option>
+                                <option value="3">3日</option>
+                                <option value="4">4日</option>
+                                <option value="5">5日</option>
+                                <option value="6">6日</option>
+                                <option value="7">7日</option>
+                                <option value="8">8日</option>
+                                <option value="9">9日</option>
+                                <option value="10">10日</option>
+                                <option value="11">11日</option>
+                                <option value="12">12日</option>
+                                <option value="13">13日</option>
+                                <option value="14">14日</option>
+                                <option value="15">15日</option>
+                                <option value="16">16日</option>
+                                <option value="17">17日</option>
+                                <option value="18">18日</option>
+                                <option value="19">19日</option>
+                                <option value="20">20日</option>
+                                <option value="21">21日</option>
+                                <option value="22">22日</option>
+                                <option value="23">23日</option>
+                                <option value="24">24日</option>
+                                <option value="25">25日</option>
+                                <option value="26">26日</option>
+                                <option value="27">27日</option>
+                                <option value="28">28日</option>
+                                <option value="29">29日</option>
+                                <option value="30">30日</option>
+                            </select>
+                            <div class="duration-value" id="day-value">00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-row">
+                        <label>小时会员：</label>
+                        <div class="duration-container">
+                            <select id="hour-duration">
+                                <option value="">请选择</option>
+                                <option value="1">1小时</option>
+                                <option value="2">2小时</option>
+                                <option value="3">3小时</option>
+                                <option value="4">4小时</option>
+                                <option value="5">5小时</option>
+                                <option value="6">6小时</option>
+                                <option value="7">7小时</option>
+                                <option value="8">8小时</option>
+                                <option value="9">9小时</option>
+                                <option value="10">10小时</option>
+                                <option value="11">11小时</option>
+                                <option value="12">12小时</option>
+                            </select>
+                            <div class="duration-value" id="hour-value">00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <h3>会员等级</h3>
+                    <div class="input-row">
+                        <label for="member-level">选择会员等级：</label>
+                        <select id="member-level">
+                            <option value="1">1级 (基础)</option>
+                            <option value="2">2级</option>
+                            <option value="3">3级</option>
+                            <option value="4">4级</option>
+                            <option value="5">5级 (标准)</option>
+                            <option value="6">6级</option>
+                            <option value="7">7级</option>
+                            <option value="8">8级</option>
+                            <option value="9">9级 (高级)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-row">
+                        <h3>校验码说明</h3>
+                        <p style="margin-top: 10px; line-height: 1.5; color: #555;">
+                            激活码最后一位是校验码，由前15位数字之和除以7的余数决定。
+                            用于验证激活码的有效性。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button class="generate-btn" onclick="generateActivationCode()">生成激活码</button>
+            </div>
+            
+            <div class="result-container" id="result-container">
+                <div class="result-header">
+                    <h3>生成的激活码</h3>
+                    <div style="color: #28a745; font-weight: bold;">
+                        <span id="valid-indicator">✓ 校验码有效</span>
+                    </div>
+                </div>
+                
+                <div class="activation-code" id="activation-code">XXXX-XXXX-XXXX-XXXX</div>
+                
+                <div class="code-groups">
+                    <div class="code-group">会员类型</div>
+                    <div class="code-group">日期加密</div>
+                    <div class="code-group">时间加密</div>
+                    <div class="code-group">等级+校验</div>
+                </div>
+                
+                <button class="copy-btn" onclick="copyActivationCode()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                    </svg>
+                    复制激活码
+                </button>
+                
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>效期开始时间</h4>
+                        <div class="info-value" id="start-time">-</div>
+                    </div>
+                    <div class="info-card">
+                        <h4>效期截止时间</h4>
+                        <div class="info-value" id="end-time">-</div>
+                    </div>
+                    <div class="info-card">
+                        <h4>会员等级</h4>
+                        <div class="info-value" id="level-display">-</div>
+                    </div>
+                    <div class="info-card">
+                        <h4>会员类型</h4>
+                        <div class="info-value" id="member-type">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="explanation">
+                <h3>激活码生成规则</h3>
+                <div class="rules">
+                    <div class="rule-item">
+                        <h4>格式结构</h4>
+                        <p>20位激活码分为4组，每组5位：<br>AAAAA-BBBBB-CCCCC-DDDDD</p>
+                    </div>
+                    <div class="rule-item">
+                        <h4>第一组 (会员类型)</h4>
+                        <p>首字母：Y/M/D/H (年/月/日/时)<br>后4位：年份 +1995 不进位加法</p>
+                    </div>
+                    <div class="rule-item">
+                        <h4>第二组 (日期)</h4>
+                        <p>首字母：随机大写字母<br>后4位：月日 +1028 不进位加法</p>
+                    </div>
+                    <div class="rule-item">
+                        <h4>第三组 (时间)</h4>
+                        <p>首字母：随机大写字母<br>后4位：时间 +0421 不进位加法</p>
+                    </div>
+                    <div class="rule-item">
+                        <h4>第四组 (等级+校验)</h4>
+                        <p>首字母：随机大写字母<br>第2位：会员等级(1-9)<br>第3-4位：有效时长<br>第5位：校验码</p>
+                    </div>
+                    <div class="rule-item">
+                        <h4>校验规则</h4>
+                        <p>校验码 = (前15位数字之和) mod 7<br>用于验证激活码有效性</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>激活码生成器 &copy; 2023 | 安全可靠的激活码解决方案</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 更新持续时间显示
+        document.querySelectorAll('select[id$="-duration"]').forEach(select => {
+            select.addEventListener('change', function() {
+                const id = this.id;
+                const value = this.value;
+                const type = id.split('-')[0];
+                
+                // 清空其他选择
+                if (value) {
+                    document.querySelectorAll('select[id$="-duration"]').forEach(other => {
+                        if (other !== this) {
+                            other.value = '';
+                            document.getElementById(other.id.replace('duration', 'value')).textContent = '00';
+                        }
+                    });
+                    
+                    // 更新当前值显示
+                    document.getElementById(type + '-value').textContent = 
+                        value < 10 ? '0' + value : value;
+                } else {
+                    document.getElementById(type + '-value').textContent = '00';
+                }
+            });
+        });
+        
+        // 生成随机大写字母
+        function getRandomLetter() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            return letters[Math.floor(Math.random() * letters.length)];
+        }
+        
+        // 不进位加法
+        function noCarryAddition(num1, num2) {
+            const str1 = num1.toString().padStart(4, '0');
+            const str2 = num2.toString().padStart(4, '0');
+            let result = '';
+            
+            for (let i = 0; i < 4; i++) {
+                const digit1 = parseInt(str1[i]);
+                const digit2 = parseInt(str2[i]);
+                const sum = digit1 + digit2;
+                result += (sum % 10).toString();
+            }
+            
+            return result;
+        }
+        
+        // 生成激活码
+        function generateActivationCode() {
+            // 获取日期和时间
+            const dateInput = document.getElementById('date-input').value;
+            const timeInput = document.getElementById('time-input').value;
+            
+            if (!dateInput || !timeInput) {
+                alert('请选择日期和时间');
+                return;
+            }
+            
+            // 格式化日期和时间
+            const date = new Date(dateInput);
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            
+            const timeParts = timeInput.split(':');
+            const hours = timeParts[0].padStart(2, '0');
+            const minutes = timeParts[1].padStart(2, '0');
+            
+            // 获取会员等级
+            const memberLevel = document.getElementById('member-level').value;
+            
+            // 获取有效期类型和值
+            let durationType = '';
+            let durationValue = '00';
+            
+            if (document.getElementById('year-duration').value) {
+                durationType = 'Y';
+                durationValue = document.getElementById('year-duration').value.padStart(2, '0');
+            } else if (document.getElementById('month-duration').value) {
+                durationType = 'M';
+                durationValue = document.getElementById('month-duration').value.padStart(2, '0');
+            } else if (document.getElementById('day-duration').value) {
+                durationType = 'D';
+                durationValue = document.getElementById('day-duration').value.padStart(2, '0');
+            } else if (document.getElementById('hour-duration').value) {
+                durationType = 'H';
+                durationValue = document.getElementById('hour-duration').value.padStart(2, '0');
+            } else {
+                alert('请选择会员有效期');
+                return;
+            }
+            
+            // 构建激活码
+            // 第一组：类型 + 年份不进位加法
+            const group1 = durationType + noCarryAddition(year, 1995);
+            
+            // 第二组：随机字母 + 月日不进位加法
+            const group2 = getRandomLetter() + noCarryAddition(month + day, 1028);
+            
+            // 第三组：随机字母 + 时间不进位加法
+            const group3 = getRandomLetter() + noCarryAddition(hours + minutes, 421);
+            
+            // 第四组：随机字母 + 会员等级+有效期
+            const group4Prefix = getRandomLetter() + memberLevel + durationValue;
+            
+            // 计算前15位数字之和（用于校验码）
+            const allDigits = group1.substring(1) + group2.substring(1) + group3.substring(1) + group4Prefix.substring(1);
+            let digitSum = 0;
+            
+            for (let i = 0; i < allDigits.length; i++) {
+                digitSum += parseInt(allDigits[i]);
+            }
+            
+            // 计算校验码（前15位数字之和 mod 7）
+            const checkDigit = (digitSum % 7).toString();
+            const group4 = group4Prefix + checkDigit;
+            
+            // 组合激活码
+            const activationCode = group1 + '-' + group2 + '-' + group3 + '-' + group4;
+            
+            // 显示激活码
+            document.getElementById('activation-code').textContent = activationCode;
+            
+            // 计算并显示有效期
+            const startDate = new Date(date);
+            startDate.setHours(parseInt(hours));
+            startDate.setMinutes(parseInt(minutes));
+            
+            document.getElementById('start-time').textContent = 
+                startDate.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            
+            const endDate = new Date(startDate);
+            
+            // 根据类型添加有效期
+            if (durationType === 'Y') {
+                endDate.setFullYear(endDate.getFullYear() + parseInt(durationValue));
+            } else if (durationType === 'M') {
+                endDate.setMonth(endDate.getMonth() + parseInt(durationValue));
+            } else if (durationType === 'D') {
+                endDate.setDate(endDate.getDate() + parseInt(durationValue));
+            } else if (durationType === 'H') {
+                endDate.setHours(endDate.getHours() + parseInt(durationValue));
+            }
+            
+            document.getElementById('end-time').textContent = 
+                endDate.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            
+            // 显示会员等级和类型
+            document.getElementById('level-display').textContent = memberLevel + '级';
+            document.getElementById('member-type').textContent = 
+                durationType === 'Y' ? '年度会员' : 
+                durationType === 'M' ? '月度会员' : 
+                durationType === 'D' ? '单日会员' : '小时会员';
+            
+            // 显示结果容器
+            document.getElementById('result-container').style.display = 'block';
+            
+            // 滚动到结果区域
+            document.getElementById('result-container').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+        
+        // 复制激活码
+        function copyActivationCode() {
+            const code = document.getElementById('activation-code').textContent;
+            const codeWithoutHyphens = code.replace(/-/g, '');
+            
+            navigator.clipboard.writeText(codeWithoutHyphens)
+                .then(() => {
+                    const btn = document.querySelector('.copy-btn');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                        </svg>
+                        已复制!
+                    `;
+                    btn.style.background = '#218838';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.background = '#28a745';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('复制失败:', err);
+                    alert('复制失败，请手动复制激活码');
+                });
+        }
+        
+        // 初始化日期和时间
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            
+            // 设置日期输入为今天
+            const today = now.toISOString().split('T')[0];
+            document.getElementById('date-input').value = today;
+            
+            // 设置时间输入为当前时间
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('time-input').value = `${hours}:${minutes}`;
+            
+            // 设置默认会员等级
+            document.getElementById('member-level').value = '5';
+        });
+    </script>
+</body>
+</html>
